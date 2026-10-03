@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Web 4.0 Contrivance Engineering — Article Series</title>
+<meta name="description" content="A field guide for web developers: An article series for web developers: replace the CMS with Next.js + GitHub + Vercel and an AI assistant.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#FBF9F5;
+    --paper-deep:#F4F0E8;
+    --ink:#1C1917;
+    --muted:#78716C;
+    --faint:#A8A29E;
+    --line:#E7E1D6;
+    --accent:#9A3412;
+    --accent-bright:#C2410C;
+    --accent-soft:#FBEFE4;
+    --code-bg:#F3EEE5;
+    --callout-bg:#FDf8EF;
+    --radius:12px;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    margin:0;
+    background:var(--paper);
+    color:var(--ink);
+    font-family:"Source Serif 4",Georgia,"Times New Roman",serif;
+    font-size:1.125rem;
+    line-height:1.8;
+    -webkit-font-smoothing:antialiased;
+  }
+  ::selection{background:#F5D9BC}
+
+  .page{
+    display:grid;
+    grid-template-columns:230px minmax(0,44rem);
+    gap:4.5rem;
+    max-width:72rem;
+    margin:0 auto;
+    padding:4.5rem 2rem 6rem;
+    justify-content:center;
+  }
+
+  /* ---------- Table of contents ---------- */
+  .toc{
+    position:sticky;
+    top:2.5rem;
+    align-self:start;
+    font-family:Inter,system-ui,sans-serif;
+    font-size:.82rem;
+    line-height:1.5;
+    max-height:calc(100vh - 5rem);
+    overflow:auto;
+    padding-right:.5rem;
+  }
+  .toc .toc-label{
+    text-transform:uppercase;
+    letter-spacing:.14em;
+    font-size:.68rem;
+    font-weight:600;
+    color:var(--faint);
+    margin-bottom:.9rem;
+  }
+  .toc ol{list-style:none;margin:0;padding:0}
+  .toc li{margin:0 0 .15rem}
+  .toc a{
+    display:block;
+    color:var(--muted);
+    text-decoration:none;
+    padding:.28rem .6rem;
+    border-left:2px solid var(--line);
+    transition:color .15s,border-color .15s;
+  }
+  .toc a:hover{color:var(--ink)}
+  .toc a.active{color:var(--accent);border-left-color:var(--accent);font-weight:500}
+  .toc ol ol a{padding-left:1.3rem;font-size:.76rem}
+
+  /* ---------- Article ---------- */
+  .article{min-width:0}
+  .kicker{
+    font-family:Inter,system-ui,sans-serif;
+    text-transform:uppercase;
+    letter-spacing:.18em;
+    font-size:.72rem;
+    font-weight:600;
+    color:var(--accent);
+    margin:0 0 1.4rem;
+  }
+  h1{
+    font-family:Fraunces,Georgia,serif;
+    font-weight:600;
+    font-size:clamp(2.4rem,5vw,3.4rem);
+    line-height:1.08;
+    letter-spacing:-0.015em;
+    margin:0 0 1.4rem;
+    text-wrap:balance;
+  }
+  .lede{
+    font-size:1.35rem;
+    line-height:1.65;
+    color:#44403C;
+    margin:0 0 2rem;
+    text-wrap:pretty;
+  }
+  .byline{
+    display:flex;
+    flex-wrap:wrap;
+    gap:.4rem 1.2rem;
+    align-items:center;
+    font-family:Inter,system-ui,sans-serif;
+    font-size:.82rem;
+    color:var(--muted);
+    padding:1.1rem 0;
+    border-top:1px solid var(--line);
+    border-bottom:1px solid var(--line);
+    margin-bottom:3rem;
+  }
+  .byline strong{color:var(--ink);font-weight:600}
+  .byline .dot{color:var(--faint)}
+
+  section{margin-bottom:3.5rem;scroll-margin-top:2rem}
+  h2{
+    font-family:Fraunces,Georgia,serif;
+    font-weight:600;
+    font-size:2rem;
+    line-height:1.25;
+    letter-spacing:-0.01em;
+    margin:0 0 1.2rem;
+    padding-top:1rem;
+    scroll-margin-top:1.5rem;
+    counter-increment:part;
+  }
+  h2 .part-num{
+    display:block;
+    font-family:Inter,system-ui,sans-serif;
+    font-size:.72rem;
+    font-weight:600;
+    text-transform:uppercase;
+    letter-spacing:.18em;
+    color:var(--accent);
+    margin-bottom:.5rem;
+  }
+  h3{
+    font-family:Fraunces,Georgia,serif;
+    font-weight:600;
+    font-size:1.35rem;
+    line-height:1.35;
+    margin:2.4rem 0 .8rem;
+    scroll-margin-top:1.5rem;
+  }
+  p{margin:0 0 1.3rem;text-wrap:pretty}
+  .dropcap::first-letter{
+    font-family:Fraunces,Georgia,serif;
+    font-weight:700;
+    font-size:3.6em;
+    line-height:.85;
+    float:left;
+    padding:.06em .12em 0 0;
+    color:var(--accent);
+  }
+  a{color:var(--accent-bright);text-decoration-thickness:1px;text-underline-offset:3px}
+  a:hover{color:var(--accent)}
+  strong{font-weight:600}
+  ul,ol{margin:0 0 1.3rem;padding-left:1.4rem}
+  li{margin-bottom:.45rem}
+  li::marker{color:var(--accent)}
+
+  /* diagram */
+  .diagram{
+    font-family:"JetBrains Mono",ui-monospace,Menlo,monospace;
+    font-size:.8rem;
+    line-height:1.7;
+    background:var(--ink);
+    color:#EDE6D8;
+    border-radius:var(--radius);
+    padding:1.4rem 1.6rem;
+    overflow-x:auto;
+    margin:1.8rem 0;
+    white-space:pre;
+  }
+  .diagram .hl{color:#F0B46A}
+
+  /* code */
+  code{
+    font-family:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+    font-size:.82em;
+    background:var(--code-bg);
+    border:1px solid var(--line);
+    border-radius:6px;
+    padding:.12em .42em;
+    white-space:nowrap;
+  }
+  .codeblock{
+    margin:1.8rem 0;
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    overflow:hidden;
+    background:#FFFDF9;
+  }
+  .codeblock-header{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:1rem;
+    padding:.55rem 1rem;
+    background:var(--paper-deep);
+    border-bottom:1px solid var(--line);
+    font-family:Inter,system-ui,sans-serif;
+    font-size:.74rem;
+    color:var(--muted);
+  }
+  .codeblock-header .lang{
+    font-weight:600;
+    text-transform:uppercase;
+    letter-spacing:.1em;
+    font-size:.66rem;
+  }
+  .copy-btn{
+    font-family:Inter,system-ui,sans-serif;
+    font-size:.72rem;
+    font-weight:500;
+    color:var(--muted);
+    background:transparent;
+    border:1px solid var(--line);
+    border-radius:8px;
+    padding:.28rem .7rem;
+    cursor:pointer;
+    transition:all .15s;
+  }
+  .copy-btn:hover{color:var(--ink);border-color:var(--faint)}
+  .copy-btn.copied{color:var(--accent);border-color:var(--accent)}
+  .codeblock pre{
+    margin:0;
+    padding:1.2rem 1.4rem;
+    overflow-x:auto;
+    font-family:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+    font-size:.83rem;
+    line-height:1.7;
+  }
+  .codeblock pre code{
+    background:none;border:none;padding:0;white-space:pre;font-size:1em;
+  }
+  /* tiny syntax tint */
+  .tok-k{color:#9A3412;font-weight:500}
+  .tok-s{color:#3F6212}
+  .tok-c{color:#A8A29E;font-style:italic}
+  .tok-f{color:#1D4ED8}
+
+  /* tables */
+  .table-wrap{overflow-x:auto;margin:1.8rem 0;border:1px solid var(--line);border-radius:var(--radius)}
+  table{
+    width:100%;
+    border-collapse:collapse;
+    font-family:Inter,system-ui,sans-serif;
+    font-size:.86rem;
+    line-height:1.55;
+    background:#FFFDF9;
+  }
+  th{
+    text-align:left;
+    font-size:.7rem;
+    text-transform:uppercase;
+    letter-spacing:.1em;
+    color:var(--muted);
+    font-weight:600;
+    padding:.9rem 1.1rem;
+    background:var(--paper-deep);
+    border-bottom:1px solid var(--line);
+    white-space:nowrap;
+  }
+  td{padding:.85rem 1.1rem;border-bottom:1px solid var(--line);vertical-align:top}
+  tr:last-child td{border-bottom:none}
+  td code{white-space:normal}
+
+  /* callout */
+  .callout{
+    background:var(--callout-bg);
+    border:1px solid #EBD9BE;
+    border-left:4px solid var(--accent-bright);
+    border-radius:0 var(--radius) var(--radius) 0;
+    padding:1.2rem 1.5rem;
+    margin:1.8rem 0;
+    font-size:1.02rem;
+  }
+  .callout p{margin:0}
+  .callout strong{color:var(--accent)}
+
+  /* dialogue */
+  .dialogue{margin:1.8rem 0;display:flex;flex-direction:column;gap:.9rem}
+  .turn{
+    border-radius:var(--radius);
+    padding:1rem 1.3rem;
+    font-size:1.02rem;
+    line-height:1.7;
+  }
+  .turn p{margin:0}
+  .turn .who{
+    display:block;
+    font-family:Inter,system-ui,sans-serif;
+    font-size:.68rem;
+    font-weight:600;
+    text-transform:uppercase;
+    letter-spacing:.14em;
+    margin-bottom:.4rem;
+  }
+  .turn.you{background:#FFFDF9;border:1px solid var(--line)}
+  .turn.you .who{color:var(--muted)}
+  .turn.ai{background:var(--accent-soft);border:1px solid #F0DCC4}
+  .turn.ai .who{color:var(--accent)}
+
+  /* repo tree */
+  .tree{
+    font-family:"JetBrains Mono",ui-monospace,Menlo,monospace;
+    font-size:.83rem;
+    line-height:1.75;
+    background:#FFFDF9;
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    padding:1.3rem 1.5rem;
+    margin:1.8rem 0;
+    overflow-x:auto;
+    white-space:pre;
+  }
+  .tree .cm{color:var(--faint)}
+
+  hr.ornament{
+    border:none;
+    text-align:center;
+    margin:3.5rem 0;
+    color:var(--faint);
+    font-size:1.1rem;
+    letter-spacing:.6em;
+  }
+  hr.ornament::after{content:"⁂"}
+
+  .checklist{
+    list-style:none;
+    padding:0;
+    margin:1.8rem 0;
+    counter-reset:step;
+  }
+  .checklist li{
+    position:relative;
+    padding:1rem 1.2rem 1rem 3.6rem;
+    background:#FFFDF9;
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    margin-bottom:.8rem;
+    counter-increment:step;
+  }
+  .checklist li::before{
+    content:counter(step);
+    position:absolute;
+    left:1.2rem;top:1rem;
+    width:1.7rem;height:1.7rem;
+    border-radius:50%;
+    background:var(--accent);
+    color:#fff;
+    font-family:Inter,system-ui,sans-serif;
+    font-size:.8rem;font-weight:600;
+    display:flex;align-items:center;justify-content:center;
+  }
+  .checklist li::marker{content:""}
+  .checklist code{white-space:normal}
+
+  footer.colophon{
+    margin-top:4rem;
+    padding-top:2rem;
+    border-top:1px solid var(--line);
+    font-family:Inter,system-ui,sans-serif;
+    font-size:.82rem;
+    color:var(--muted);
+    line-height:1.7;
+  }
+  footer.colophon em{
+    font-family:"Source Serif 4",Georgia,serif;
+    font-size:1rem;
+    color:var(--ink);
+    display:block;
+    margin-bottom:1rem;
+  }
+
+  @media (max-width:60rem){
+    .page{grid-template-columns:1fr;gap:0;padding-top:3rem}
+    .toc{
+      position:static;
+      max-height:none;
+      background:#FFFDF9;
+      border:1px solid var(--line);
+      border-radius:var(--radius);
+      padding:1.2rem 1.4rem;
+      margin-bottom:2.5rem;
+    }
+    .toc ol ol{display:none}
+  }
+  @media print{
+    .toc,.copy-btn{display:none}
+    .page{display:block;padding:0}
+    body{font-size:11pt;background:#fff}
+    section{break-inside:avoid}
+  }
+</style>
+</head>
+<body>
+<div class="page">
+  <main class="article" style="grid-column:1/-1;max-width:46rem;margin:0 auto;width:100%;">
+    <header>
+      <p class="kicker">Web 4.0 · Contrivance Engineering</p>
+      <h1>The article series</h1>
+      <p class="lede">A CMS was only ever two jobs — <em>store content with structure</em> and <em>give non-technical people a way to change it</em>. These articles show web developers how to replace it with a smaller, cleverer mechanism: <strong>Next.js + GitHub + Vercel, with an AI assistant as the content manager.</strong> Content management was never about the dashboard; it was always the loop — <em>intent → change → review → publish</em> — rebuilt from a chat, a branch, a preview URL, and a merge.</p>
+    </header>
+    <h2>Start with your platform</h2>
+    <ol class="checklist">
+      <li><strong><a href="wordpress-to-nextjs-ai-cms/">Goodbye WordPress</a></strong><br>Replace wp-admin with an AI assistant. The flagship migration playbook: export, content layer, redirects, dev/staging/prod branches, and the AI content workflow.</li>
+      <li><strong><a href="static-html-to-nextjs-ai-cms/">Goodbye FTP</a></strong><br>Unfreeze static HTML sites. No database to escape — migrate one page at a time and install a CMS where none existed.</li>
+      <li><strong><a href="shopify-to-nextjs-ai-cms/">Goodbye App Stack</a></strong><br>Unbundle Shopify: headless Next.js storefront on Vercel, Shopify kept for checkout, AI assistant as merchandiser.</li>
+      <li><strong><a href="wix-to-nextjs-ai-cms/">Goodbye Lock-in</a></strong><br>Escape Wix. No export exists, so the AI jailbreaks the content by crawling the live site — then you own everything.</li>
+      <li><strong><a href="squarespace-to-nextjs-ai-cms/">Goodbye Template Cage</a></strong><br>Keep the beauty, lose the cage. Pixel-faithful rebuilds, galleries as real components, AI content ops.</li>
+      <li><strong><a href="webflow-to-nextjs-ai-cms/">Goodbye Webflow</a></strong><br>Graduate to code you own. Code export maps to Next.js components, Collections become Markdown, no seat taxes.</li>
+    </ol>
+    <footer class="colophon">
+      <em>Written with an AI assistant. The series practices what it preaches.</em>
+      <p>By Andrew Good · October 2026</p>
+    </footer>
+  </main>
+</div>
+<script>
+(function(){
+  // Copy buttons
+  document.querySelectorAll('.copy-btn').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      var code = btn.closest('.codeblock').querySelector('pre code').innerText;
+      navigator.clipboard.writeText(code).then(function(){
+        btn.textContent = 'Copied';
+        btn.classList.add('copied');
+        setTimeout(function(){ btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 1600);
+      });
+    });
+  });
+
+  // Active TOC highlighting
+  var links = Array.prototype.slice.call(document.querySelectorAll('.toc a'));
+  var byId = {};
+  links.forEach(function(a){
+    var id = a.getAttribute('href').slice(1);
+    (byId[id] = byId[id] || []).push(a);
+  });
+  var sections = Object.keys(byId).map(function(id){ return document.getElementById(id); })
+    .filter(Boolean);
+  if ('IntersectionObserver' in window && sections.length){
+    var obs = new IntersectionObserver(function(entries){
+      entries.forEach(function(e){
+        if (e.isIntersecting){
+          links.forEach(function(a){ a.classList.remove('active'); });
+          (byId[e.target.id] || []).forEach(function(a){ a.classList.add('active'); });
+        }
+      });
+    }, { rootMargin: '-20% 0px -70% 0px' });
+    sections.forEach(function(s){ obs.observe(s); });
+  }
+})();
+</script>
+</body>
+</html>
