@@ -1,0 +1,7 @@
+Your Shopify store isn't one subscription. It's twelve: the plan, the review app, the upsell app, the search app, the loyalty app…
+
+New developer guide (article 3 in my Web 4.0 Contrivance Engineering series): how to unbundle it. Headless Next.js storefront on Vercel, Shopify kept for what it's actually good at (checkout, payments, fraud), and an AI assistant handling merchandising as your CMS. Keep the transaction machine, lose the app stack.
+
+Read it here: https://hirschbergaio.github.io/web40-contrivance-engineering/shopify-to-nextjs-ai-cms/
+
+#webdev #nextjs #shopify #ecommerce

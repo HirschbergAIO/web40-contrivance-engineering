@@ -1,0 +1,7 @@
+Squarespace clients chose beauty — photographers, restaurants, studios. What came with it: a cage. Template rigidity, rising plan fees, and a ceiling on what the site can ever become.
+
+New developer guide (article 5 in my Web 4.0 Contrivance Engineering series): keep the beauty, lose the cage. Rebuilding Squarespace sites on Next.js + Vercel — pixel-faithful design, galleries as real components, and an AI assistant as your CMS.
+
+Read it here: https://hirschbergaio.github.io/web40-contrivance-engineering/squarespace-to-nextjs-ai-cms/
+
+#webdev #nextjs #squarespace

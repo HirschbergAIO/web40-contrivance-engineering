@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Goodbye Webflow: Graduate to Code You Own on Next.js + Vercel, with an AI Assistant as Your CMS</title>
+<meta name="description" content="A field guide for web developers: graduate Webflow sites to Next.js on GitHub + Vercel, and replace the Editor with an AI assistant as your CMS.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#FBF9F5;
+    --paper-deep:#F4F0E8;
+    --ink:#1C1917;
+    --muted:#78716C;
+    --faint:#A8A29E;
+    --line:#E7E1D6;
+    --accent:#9A3412;
+    --accent-bright:#C2410C;
+    --accent-soft:#FBEFE4;
+    --code-bg:#F3EEE5;
+    --callout-bg:#FDf8EF;
+    --radius:12px;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    margin:0;
+    background:var(--paper);
+    color:var(--ink);
+    font-family:"Source Serif 4",Georgia,"Times New Roman",serif;
+    font-size:1.125rem;
+    line-height:1.8;
+    -webkit-font-smoothing:antialiased;
+  }
+  ::selection{background:#F5D9BC}
+
+  .page{
+    display:grid;
+    grid-template-columns:230px minmax(0,44rem);
+    gap:4.5rem;
+    max-width:72rem;
+    margin:0 auto;
+    padding:4.5rem 2rem 6rem;
+    justify-content:center;
+  }
+
+  /* ---------- Table of contents ---------- */
+  .toc{
+    position:sticky;
+    top:2.5rem;
+    align-self:start;
+    font-family:Inter,system-ui,sans-serif;
+    font-size:.82rem;
+    line-height:1.5;
+    max-height:calc(100vh - 5rem);
+    overflow:auto;
+    padding-right:.5rem;
+  }
+  .toc .toc-label{
+    text-transform:uppercase;
+    letter-spacing:.14em;
+    font-size:.68rem;
+    font-weight:600;
+    color:var(--faint);
+    margin-bottom:.9rem;
+  }
+  .toc ol{list-style:none;margin:0;padding:0}
+  .toc li{margin:0 0 .15rem}
+  .toc a{
+    display:block;
+    color:var(--muted);
+    text-decoration:none;
+    padding:.28rem .6rem;
+    border-left:2px solid var(--line);
+    transition:color .15s,border-color .15s;
+  }
+  .toc a:hover{color:var(--ink)}
+  .toc a.active{color:var(--accent);border-left-color:var(--accent);font-weight:500}
+  .toc ol ol a{padding-left:1.3rem;font-size:.76rem}
+
+  /* ---------- Article ---------- */
+  .article{min-width:0}
+  .kicker{
+    font-family:Inter,system-ui,sans-serif;
+    text-transform:uppercase;
+    letter-spacing:.18em;
+    font-size:.72rem;
+    font-weight:600;
+    color:var(--accent);
+    margin:0 0 1.4rem;
+  }
+  h1{
+    font-family:Fraunces,Georgia,serif;
+    font-weight:600;
+    font-size:clamp(2.4rem,5vw,3.4rem);
+    line-height:1.08;
+    letter-spacing:-0.015em;
+    margin:0 0 1.4rem;
+    text-wrap:balance;
+  }
+  .lede{
+    font-size:1.35rem;
+    line-height:1.65;
+    color:#44403C;
+    margin:0 0 2rem;
+    text-wrap:pretty;
+  }
+  .byline{
+    display:flex;
+    flex-wrap:wrap;
+    gap:.4rem 1.2rem;
+    align-items:center;
+    font-family:Inter,system-ui,sans-serif;
+    font-size:.82rem;
+    color:var(--muted);
+    padding:1.1rem 0;
+    border-top:1px solid var(--line);
+    border-bottom:1px solid var(--line);
+    margin-bottom:3rem;
+  }
+  .byline strong{color:var(--ink);font-weight:600}
+  .byline .dot{color:var(--faint)}
+
+  section{margin-bottom:3.5rem;scroll-margin-top:2rem}
+  h2{
+    font-family:Fraunces,Georgia,serif;
+    font-weight:600;
+    font-size:2rem;
+    line-height:1.25;
+    letter-spacing:-0.01em;
+    margin:0 0 1.2rem;
+    padding-top:1rem;
+    scroll-margin-top:1.5rem;
+    counter-increment:part;
+  }
+  h2 .part-num{
+    display:block;
+    font-family:Inter,system-ui,sans-serif;
+    font-size:.72rem;
+    font-weight:600;
+    text-transform:uppercase;
+    letter-spacing:.18em;
+    color:var(--accent);
+    margin-bottom:.5rem;
+  }
+  h3{
+    font-family:Fraunces,Georgia,serif;
+    font-weight:600;
+    font-size:1.35rem;
+    line-height:1.35;
+    margin:2.4rem 0 .8rem;
+    scroll-margin-top:1.5rem;
+  }
+  p{margin:0 0 1.3rem;text-wrap:pretty}
+  .dropcap::first-letter{
+    font-family:Fraunces,Georgia,serif;
+    font-weight:700;
+    font-size:3.6em;
+    line-height:.85;
+    float:left;
+    padding:.06em .12em 0 0;
+    color:var(--accent);
+  }
+  a{color:var(--accent-bright);text-decoration-thickness:1px;text-underline-offset:3px}
+  a:hover{color:var(--accent)}
+  strong{font-weight:600}
+  ul,ol{margin:0 0 1.3rem;padding-left:1.4rem}
+  li{margin-bottom:.45rem}
+  li::marker{color:var(--accent)}
+
+  /* diagram */
+  .diagram{
+    font-family:"JetBrains Mono",ui-monospace,Menlo,monospace;
+    font-size:.8rem;
+    line-height:1.7;
+    background:var(--ink);
+    color:#EDE6D8;
+    border-radius:var(--radius);
+    padding:1.4rem 1.6rem;
+    overflow-x:auto;
+    margin:1.8rem 0;
+    white-space:pre;
+  }
+  .diagram .hl{color:#F0B46A}
+
+  /* code */
+  code{
+    font-family:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+    font-size:.82em;
+    background:var(--code-bg);
+    border:1px solid var(--line);
+    border-radius:6px;
+    padding:.12em .42em;
+    white-space:nowrap;
+  }
+  .codeblock{
+    margin:1.8rem 0;
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    overflow:hidden;
+    background:#FFFDF9;
+  }
+  .codeblock-header{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:1rem;
+    padding:.55rem 1rem;
+    background:var(--paper-deep);
+    border-bottom:1px solid var(--line);
+    font-family:Inter,system-ui,sans-serif;
+    font-size:.74rem;
+    color:var(--muted);
+  }
+  .codeblock-header .lang{
+    font-weight:600;
+    text-transform:uppercase;
+    letter-spacing:.1em;
+    font-size:.66rem;
+  }
+  .copy-btn{
+    font-family:Inter,system-ui,sans-serif;
+    font-size:.72rem;
+    font-weight:500;
+    color:var(--muted);
+    background:transparent;
+    border:1px solid var(--line);
+    border-radius:8px;
+    padding:.28rem .7rem;
+    cursor:pointer;
+    transition:all .15s;
+  }
+  .copy-btn:hover{color:var(--ink);border-color:var(--faint)}
+  .copy-btn.copied{color:var(--accent);border-color:var(--accent)}
+  .codeblock pre{
+    margin:0;
+    padding:1.2rem 1.4rem;
+    overflow-x:auto;
+    font-family:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+    font-size:.83rem;
+    line-height:1.7;
+  }
+  .codeblock pre code{
+    background:none;border:none;padding:0;white-space:pre;font-size:1em;
+  }
+  /* tiny syntax tint */
+  .tok-k{color:#9A3412;font-weight:500}
+  .tok-s{color:#3F6212}
+  .tok-c{color:#A8A29E;font-style:italic}
+  .tok-f{color:#1D4ED8}
+
+  /* tables */
+  .table-wrap{overflow-x:auto;margin:1.8rem 0;border:1px solid var(--line);border-radius:var(--radius)}
+  table{
+    width:100%;
+    border-collapse:collapse;
+    font-family:Inter,system-ui,sans-serif;
+    font-size:.86rem;
+    line-height:1.55;
+    background:#FFFDF9;
+  }
+  th{
+    text-align:left;
+    font-size:.7rem;
+    text-transform:uppercase;
+    letter-spacing:.1em;
+    color:var(--muted);
+    font-weight:600;
+    padding:.9rem 1.1rem;
+    background:var(--paper-deep);
+    border-bottom:1px solid var(--line);
+    white-space:nowrap;
+  }
+  td{padding:.85rem 1.1rem;border-bottom:1px solid var(--line);vertical-align:top}
+  tr:last-child td{border-bottom:none}
+  td code{white-space:normal}
+
+  /* callout */
+  .callout{
+    background:var(--callout-bg);
+    border:1px solid #EBD9BE;
+    border-left:4px solid var(--accent-bright);
+    border-radius:0 var(--radius) var(--radius) 0;
+    padding:1.2rem 1.5rem;
+    margin:1.8rem 0;
+    font-size:1.02rem;
+  }
+  .callout p{margin:0}
+  .callout strong{color:var(--accent)}
+
+  /* dialogue */
+  .dialogue{margin:1.8rem 0;display:flex;flex-direction:column;gap:.9rem}
+  .turn{
+    border-radius:var(--radius);
+    padding:1rem 1.3rem;
+    font-size:1.02rem;
+    line-height:1.7;
+  }
+  .turn p{margin:0}
+  .turn .who{
+    display:block;
+    font-family:Inter,system-ui,sans-serif;
+    font-size:.68rem;
+    font-weight:600;
+    text-transform:uppercase;
+    letter-spacing:.14em;
+    margin-bottom:.4rem;
+  }
+  .turn.you{background:#FFFDF9;border:1px solid var(--line)}
+  .turn.you .who{color:var(--muted)}
+  .turn.ai{background:var(--accent-soft);border:1px solid #F0DCC4}
+  .turn.ai .who{color:var(--accent)}
+
+  /* repo tree */
+  .tree{
+    font-family:"JetBrains Mono",ui-monospace,Menlo,monospace;
+    font-size:.83rem;
+    line-height:1.75;
+    background:#FFFDF9;
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    padding:1.3rem 1.5rem;
+    margin:1.8rem 0;
+    overflow-x:auto;
+    white-space:pre;
+  }
+  .tree .cm{color:var(--faint)}
+
+  hr.ornament{
+    border:none;
+    text-align:center;
+    margin:3.5rem 0;
+    color:var(--faint);
+    font-size:1.1rem;
+    letter-spacing:.6em;
+  }
+  hr.ornament::after{content:"⁂"}
+
+  .checklist{
+    list-style:none;
+    padding:0;
+    margin:1.8rem 0;
+    counter-reset:step;
+  }
+  .checklist li{
+    position:relative;
+    padding:1rem 1.2rem 1rem 3.6rem;
+    background:#FFFDF9;
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    margin-bottom:.8rem;
+    counter-increment:step;
+  }
+  .checklist li::before{
+    content:counter(step);
+    position:absolute;
+    left:1.2rem;top:1rem;
+    width:1.7rem;height:1.7rem;
+    border-radius:50%;
+    background:var(--accent);
+    color:#fff;
+    font-family:Inter,system-ui,sans-serif;
+    font-size:.8rem;font-weight:600;
+    display:flex;align-items:center;justify-content:center;
+  }
+  .checklist li::marker{content:""}
+  .checklist code{white-space:normal}
+
+  footer.colophon{
+    margin-top:4rem;
+    padding-top:2rem;
+    border-top:1px solid var(--line);
+    font-family:Inter,system-ui,sans-serif;
+    font-size:.82rem;
+    color:var(--muted);
+    line-height:1.7;
+  }
+  footer.colophon em{
+    font-family:"Source Serif 4",Georgia,serif;
+    font-size:1rem;
+    color:var(--ink);
+    display:block;
+    margin-bottom:1rem;
+  }
+
+  @media (max-width:60rem){
+    .page{grid-template-columns:1fr;gap:0;padding-top:3rem}
+    .toc{
+      position:static;
+      max-height:none;
+      background:#FFFDF9;
+      border:1px solid var(--line);
+      border-radius:var(--radius);
+      padding:1.2rem 1.4rem;
+      margin-bottom:2.5rem;
+    }
+    .toc ol ol{display:none}
+  }
+  @media print{
+    .toc,.copy-btn{display:none}
+    .page{display:block;padding:0}
+    body{font-size:11pt;background:#fff}
+    section{break-inside:avoid}
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <aside class="toc" aria-label="Table of contents">
+    <div class="toc-label">On this page</div>
+    <ol>
+      <li><a href="#the-frame">The frame</a></li>
+      <li><a href="#part-1">The architecture</a></li>
+      <li><a href="#part-2">Migration playbook</a>
+        <ol>
+          <li><a href="#step-1">1 · Audit</a></li>
+          <li><a href="#step-2">2 · Export</a></li>
+          <li><a href="#step-3">3 · Componentize</a></li>
+          <li><a href="#step-4">4 · Collections → Markdown</a></li>
+          <li><a href="#step-5">5 · Interactions</a></li>
+          <li><a href="#step-6">6 · Forms / Logic</a></li>
+          <li><a href="#step-7">7 · Deploy</a></li>
+          <li><a href="#step-8">8 · Cutover</a></li>
+        </ol>
+      </li>
+      <li><a href="#part-3">The AI assistant as your CMS</a>
+        <ol><li><a href="#prompt-library">Prompt library</a></li></ol>
+      </li>
+      <li><a href="#part-4">Honest tradeoffs</a></li>
+      <li><a href="#part-5">Pitching graduation</a></li>
+      <li><a href="#start">Start this weekend</a></li>
+    </ol>
+  </aside>
+
+  <main class="article">
+    <header>
+      <p class="kicker">Web 4.0 · Contrivance Engineering — Article 6</p>
+      <h1>Goodbye Webflow: graduate to code you own on Next.js + Vercel, with an AI assistant as your CMS</h1>
+      <p class="lede">Webflow is the best of the website builders, and it isn't close. This isn't an escape plan — it's a graduation plan. You already think in components, classes, and collections; Next.js is the same mental model with no ceiling: own the code, drop the per-seat taxes, and replace the Editor with an AI assistant.</p>
+      <div class="byline">
+        <span><strong>Andrew Good</strong></span><span class="dot">·</span>
+        <span>October 3, 2026</span><span class="dot">·</span>
+        <span>11 min read</span>
+      </div>
+    </header>
+
+    <section id="the-frame">
+      <h2><span class="part-num">The frame</span>Graduation, not escape</h2>
+      <p class="dropcap">The series thesis, compressed: <strong>contrivance engineering</strong> is replacing an entire software category with a smaller, cleverer mechanism. A CMS was only ever two jobs — <strong>store content with structure</strong> (git does it better than anything) and <strong>give non-technical people a way to change it</strong> (language beats dashboards). The loop was always <em>intent → change → review → publish</em>; the contrivance rebuilds it from four cheap parts: a chat, a branch, a preview URL, and a merge.</p>
+      <p>Here's the thing Webflow people grasp faster than anyone: you already live next door to the contrivance. Symbols are components. CMS Collections are structured content with a schema. Publishing is a deploy. Graduating just means owning the mechanism instead of renting it — the collections become Markdown files, the Designer becomes code, and the Editor becomes a conversation. Nothing about how you <em>think</em> changes. Only who holds the keys.</p>
+    </section>
+
+    <hr class="ornament">
+
+    <section id="part-1">
+      <h2><span class="part-num">Part 1</span>The architecture</h2>
+      <p>Same four pieces as every article in the series: <strong>Next.js</strong> renders the site, <strong>GitHub</strong> is the database, <strong>Vercel</strong> hosts it with a preview deployment for every change, and <strong>an AI assistant</strong> is the CMS. What's different for Webflow: <strong>the migration starts from Webflow's code export — the cleanest export in the industry — so this is the most mechanical migration in the series.</strong> Your symbols map 1:1 to components. Your CMS Collections map to Markdown files with a frontmatter schema. Your classes come along in the exported CSS. The design doesn't get “rebuilt” — it gets <em>carried over</em>, pixel-faithful, on day one.</p>
+      <div class="diagram">Webflow Designer  <span class="hl">→</span>  code export  <span class="hl">→</span>  Next.js components + Markdown
+CMS Collections   <span class="hl">→</span>  CSV / API   <span class="hl">→</span>  content/ with frontmatter
+Editor            <span class="hl">→</span>  (retired)   <span class="hl">→</span>  AI assistant + preview URLs</div>
+    </section>
+
+    <hr class="ornament">
+
+    <section id="part-2">
+      <h2><span class="part-num">Part 2</span>The migration playbook</h2>
+
+      <h3 id="step-1">Step 1 — Audit what you have</h3>
+      <p>Webflow sites are well-organized by construction, so this goes fast:</p>
+      <ol>
+        <li><strong>Pages</strong> — list them; note the CMS Collection Pages (blog posts, case studies) separately from static pages.</li>
+        <li><strong>CMS Collections</strong> — for each collection (Blog, Work, Team…), list its fields. These become your frontmatter schema in Step&nbsp;4. Note reference and multi-reference fields — they become frontmatter arrays or relational lookups.</li>
+        <li><strong>Symbols / components</strong> — your nav, footer, CTAs. These map 1:1 to Next.js components.</li>
+        <li><strong>Interactions inventory</strong> — list every IX2 interaction and animation. Simple scroll/fade effects are trivial to carry over; complex multi-step interactions are the fiddliest part of this migration (Step&nbsp;5).</li>
+        <li><strong>Forms, Logic, Memberships</strong> — any Logic flows, form notification endpoints, or gated member content need a rebuild decision (Step&nbsp;6).</li>
+      </ol>
+
+      <h3 id="step-2">Step 2 — Export: code and content</h3>
+      <p>Webflow's export story is the best in the builder world, and you get two exports:</p>
+      <ul>
+        <li><strong>Code export</strong> (HTML/CSS/JS, from the Designer) — your pages, your classes, your interactions runtime. The raw material for Step&nbsp;3.</li>
+        <li><strong>CMS content</strong> — per-collection CSV export from the CMS panel, or the CMS API for larger or frequently-updated collections. Rich Text fields come along as HTML, which converts cleanly to Markdown.</li>
+      </ul>
+      <p>Hand both to the AI assistant. This is mechanical transformation work — exactly what it's fast at — and it can write the conversion scripts for collections with hundreds of items.</p>
+
+      <h3 id="step-3">Step 3 — Componentize the export</h3>
+      <p>Same technique as the static-HTML article's Step&nbsp;2, but easier: Webflow already did the component thinking for you.</p>
+      <ol>
+        <li>Scaffold the Next.js app (<code>npx create-next-app@latest</code>).</li>
+        <li>Give the assistant the exported HTML: <em>“Convert each Symbol to a Next.js component (Nav, Footer, CTA…), pages to routes, and keep the exported CSS and class names intact.”</em></li>
+        <li>Drop the exported stylesheet in as-is on day one — it works, and the design arrives pixel-faithful. Migrate to Tailwind later, component by component, only if you want to.</li>
+      </ol>
+      <p>Because the export is machine-generated, there's almost no drift to reconcile — the “flag the differences” step that mattered for hand-coded sites barely applies here.</p>
+
+      <h3 id="step-4">Step 4 — Collections become Markdown</h3>
+      <p>This is the satisfying part. A Webflow CMS Collection already <em>is</em> a content model; you're just changing the storage format. Collection fields become frontmatter:</p>
+      <div class="codeblock">
+        <div class="codeblock-header"><span class="lang">Markdown</span><span>content/work/q3-brand-refresh.md</span><button class="copy-btn" type="button">Copy</button></div>
+<pre><code>---
+title: "Q3 Brand Refresh"
+slug: "q3-brand-refresh"
+date: "2026-07-14"
+client: "Acme Co"              <span class="tok-c"># was a Reference field</span>
+services: ["Identity", "Web"]  <span class="tok-c"># was a multi-reference field</span>
+cover: "/images/work/q3-refresh.jpg"
+summary: "Full rebrand and marketing site."
+---
+
+Rich text body, converted from the collection's Rich Text field…</code></pre>
+      </div>
+      <p>One Markdown file per collection item, in <code>content/work/</code>, <code>content/blog/</code>, etc. Collection Pages become dynamic routes (<code>app/work/[slug]/page.tsx</code>) with <code>generateStaticParams()</code>. Reference fields resolve at build time — the assistant generates the lookup code from your field list.</p>
+
+      <h3 id="step-5">Step 5 — Interactions: keep, then rebuild</h3>
+      <p>Be honest with yourself here: this is the fiddliest step.</p>
+      <ul>
+        <li><strong>Keep what works:</strong> the exported <code>webflow.js</code> powers IX2 interactions. For simple scroll, fade, and hover effects, ship it as-is on day one. It works.</li>
+        <li><strong>Rebuild what matters:</strong> signature animations worth keeping long-term get rebuilt with framer-motion (or CSS) as proper React — cleaner, lighter, and yours.</li>
+        <li><strong>Triage the rest:</strong> complex multi-step IX2 timelines are where migrations stall. Decide per interaction: keep via webflow.js, rebuild, or cut. Most sites have three interactions that matter and thirty nobody will miss.</li>
+      </ul>
+
+      <h3 id="step-6">Step 6 — Forms, Logic, and Memberships</h3>
+      <ul>
+        <li><strong>Forms</strong> → a React form + Next.js Server Action via Resend or Formspree. Rebuild the notification routing (who gets emailed) that Webflow handled.</li>
+        <li><strong>Logic flows</strong> → evaluate each one. Simple automations (form → email → CRM) become Server Actions or a Make/Zapier step. Complex multi-step Logic is application work — scope it honestly.</li>
+        <li><strong>Memberships / gated content</strong> → this is the one place to slow down. Clerk or Auth.js handles it well in Next.js, but if Memberships is load-bearing, consider keeping Webflow serving the gated section during a transition period.</li>
+      </ul>
+      <div class="callout">
+        <p><strong>Don't migrate the paywall on a deadline.</strong> If gated content drives revenue, run it in parallel — new stack for the marketing site, Webflow for the members' area — until the replacement is proven. Then cut over.</p>
+      </div>
+
+      <h3 id="step-7">Step 7 — Deploy: GitHub + Vercel, branches included</h3>
+      <p>Push to GitHub, import into Vercel, point DNS. Set up the series-standard development → staging → production branch ladder:</p>
+      <div class="table-wrap">
+      <table>
+        <thead><tr><th>Branch</th><th>Environment</th><th>Deploys to</th></tr></thead>
+        <tbody>
+          <tr><td><code>main</code></td><td><strong>Production</strong></td><td>Your domain, via Vercel production deployment</td></tr>
+          <tr><td><code>staging</code></td><td><strong>Staging</strong></td><td>A staging URL mirroring production</td></tr>
+          <tr><td>Feature branches</td><td><strong>Development</strong></td><td>Automatic Vercel preview URLs — one per pull request</td></tr>
+        </tbody>
+      </table>
+      </div>
+      <p>The assistant works on branches; nothing ships without a preview you've seen. Protect <code>main</code> and <code>staging</code> with branch protection rules: require pull requests, at least one approval, and green status checks.</p>
+
+      <h3 id="step-8">Step 8 — Cutover</h3>
+      <ol>
+        <li><strong>Content freeze</strong> in Webflow — no Editor changes after an agreed time.</li>
+        <li><strong>Final CMS export</strong> → convert → merge to <code>staging</code>. Review everything on the staging URL.</li>
+        <li><strong>Merge <code>staging</code> → <code>main</code></strong>, switch DNS.</li>
+        <li><strong>Search Console:</strong> submit the sitemap, request indexing on key pages.</li>
+        <li><strong>Keep the Webflow site</strong> (downgraded or paused) for 30 days as instant rollback.</li>
+      </ol>
+
+      <h3 id="pitfalls">Don't skip: the pitfalls list</h3>
+      <ul>
+        <li><strong>Class-name collisions.</strong> Webflow's exported CSS uses generated class names that can collide with your own or with Tailwind utilities. Namespace or scope the export stylesheet on day one.</li>
+        <li><strong>Responsive images.</strong> Webflow auto-generates <code>srcset</code>s — make sure the exported image variants actually ship with the export, and consider moving to <code>next/image</code> for the important ones.</li>
+        <li><strong>Form notification endpoints.</strong> Rebuild <em>and test</em> who gets notified — the #1 “we launched and nobody told us” failure, same as every article in this series.</li>
+        <li><strong>CMS API rate limits.</strong> Large collections pulled via API need paged, throttled scripts — the assistant writes these, but verify the full item count matches.</li>
+        <li><strong>Email, as always.</strong> Copy every DNS record before switching — MX records especially.</li>
+      </ul>
+    </section>
+
+    <hr class="ornament">
+
+    <section id="part-3">
+      <h2><span class="part-num">Part 3</span>The AI assistant as your CMS</h2>
+      <p class="dropcap">This audience will love the prompt library — you already do content operations; now they're conversational. The daily loop: chat → branch → preview URL → approve → merge.</p>
+      <div class="dialogue">
+        <div class="turn you">
+          <span class="who">You</span>
+          <p>“Add the new case study to the Work collection using the Q3 template — client is Northwind, services are Web and Motion. Draft the summary from these notes: [paste].”</p>
+        </div>
+        <div class="turn ai">
+          <span class="who">Assistant</span>
+          <p>Creates <code>content/work/northwind.md</code> with the right frontmatter, commits to a branch — Vercel builds a preview.</p>
+        </div>
+        <div class="turn you">
+          <span class="who">You</span>
+          <p>Check the preview: “tighten the headline.”</p>
+        </div>
+        <div class="turn ai">
+          <span class="who">Assistant</span>
+          <p>Revises. You reply “ship it” → staging → production.</p>
+        </div>
+      </div>
+
+      <h3 id="prompt-library">The Webflow-graduate prompt library — steal these</h3>
+      <ul>
+        <li><em>“Add the new case study to the Work collection with the Q3 template: client [X], services [Y]. Draft the summary from these notes: [paste].”</em></li>
+        <li><em>“Regenerate OG images for every blog post missing one, using the post title and our brand template.”</em></li>
+        <li><em>“Find every collection item with an empty summary field and draft one in our voice.”</em></li>
+        <li><em>“Update the pricing on the Services page and every case study that mentions the old rate.”</em></li>
+        <li><em>“Audit all external links across collections; fix or flag the dead ones.”</em></li>
+        <li><em>“Convert the three most-visited blog posts' inline images to next/image with real alt text.”</em></li>
+        <li><em>“Draft next month's changelog from these merged PR titles: [paste].”</em></li>
+        <li><em>“Check that every Work item has a cover image under 400KB; compress the offenders to WebP.”</em></li>
+      </ul>
+    </section>
+
+    <hr class="ornament">
+
+    <section id="part-4">
+      <h2><span class="part-num">Part 4</span>Honest tradeoffs: when Webflow still wins</h2>
+      <p>Respect where it's due — Webflow's visual builder is genuinely excellent, and this section is shorter than the WordPress equivalent for a reason:</p>
+      <ul>
+        <li><strong>If your team lives in the Designer daily</strong> — designers shipping layout changes without developers, hitting no limits — don't fix what isn't broken. The contrivance serves teams that feel the ceiling, not teams thriving under it.</li>
+        <li><strong>Per-seat pricing is the real enemy, not the tool.</strong> Do the math on Editor seats vs. a migration before deciding; sometimes the honest answer is “stay one more year.”</li>
+        <li><strong>Don't migrate mid-campaign.</strong> If a launch, rebrand, or funding announcement is within 6 weeks, freeze the migration talk until after.</li>
+        <li><strong>Logic/Memberships parity costs.</strong> If those are load-bearing, the migration includes real application work — scope and price it as such, not as a weekend project.</li>
+      </ul>
+    </section>
+
+    <hr class="ornament">
+
+    <section id="part-5">
+      <h2><span class="part-num">Part 5</span>Pitching it: you've already outgrown it</h2>
+      <p class="dropcap">Webflow clients don't need “website” sold to them — they need <em>graduation</em> sold to them. They already think in components and collections, so speak their language:</p>
+      <ul>
+        <li><strong>“Own the code.”</strong> No more exporting around the platform. The design system lives in your repo, versioned, diffable, portable.</li>
+        <li><strong>“No seat taxes.”</strong> Content changes stop costing per-editor-seat. Anyone you trust can message the assistant; approval stays with you.</li>
+        <li><strong>“No CMS item limits.”</strong> Collections grow to whatever git can hold — effectively unbounded.</li>
+        <li><strong>“AI content ops.”</strong> The prompt library in Part&nbsp;3 does in sentences what used to take an Editor session.</li>
+      </ul>
+      <p>Name the pains they actually feel: the CMS item cap they're approaching, the seat invoice that grows with the team, hosting costs scaling with traffic. Then the objections:</p>
+      <p><strong>“What if the AI gets it wrong?”</strong> Nothing publishes without approval — branch, preview, staging, merge. More controlled than the Editor, where a published change is live instantly with no review step.</p>
+      <div class="callout">
+        <p><strong>“What if you disappear?”</strong> Everything is in their GitHub account — code, content, full history. No proprietary lock-in; any Next.js developer on earth can take over.</p>
+      </div>
+    </section>
+
+    <hr class="ornament">
+
+    <section id="start">
+      <h2><span class="part-num">Coda</span>Getting started this weekend</h2>
+      <ol class="checklist">
+        <li>Export your Webflow site's code and one CMS collection as CSV.</li>
+        <li><code>npx create-next-app@latest</code> — scaffold it, drop in the exported CSS.</li>
+        <li>Hand the assistant the export: <em>“convert the homepage and nav symbol to components.”</em></li>
+        <li>Push to GitHub, import into Vercel, open the preview URL next to the live site — then <em>“migrate the rest.”</em></li>
+      </ol>
+      <p>The future CMS isn't a dashboard. It's a conversation — with git as the memory and the edge as the server.</p>
+    </section>
+
+    <footer class="colophon">
+      <em>Sixth in the Web 4.0 Contrivance Engineering series. Built the way it describes: written with an AI assistant, versioned on GitHub, deployed on Vercel.</em>
+      <p>To publish this page with GitHub Pages: place this file as <code>index.html</code> at the root of a repository (or in <code>/docs</code>), then enable Pages under the repo's Settings → Pages. No build step required — it's a single self-contained file.</p>
+    </footer>
+  </main>
+</div>
+<script>
+(function(){
+  // Copy buttons
+  document.querySelectorAll('.copy-btn').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      var code = btn.closest('.codeblock').querySelector('pre code').innerText;
+      navigator.clipboard.writeText(code).then(function(){
+        btn.textContent = 'Copied';
+        btn.classList.add('copied');
+        setTimeout(function(){ btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 1600);
+      });
+    });
+  });
+
+  // Active TOC highlighting
+  var links = Array.prototype.slice.call(document.querySelectorAll('.toc a'));
+  var byId = {};
+  links.forEach(function(a){
+    var id = a.getAttribute('href').slice(1);
+    (byId[id] = byId[id] || []).push(a);
+  });
+  var sections = Object.keys(byId).map(function(id){ return document.getElementById(id); })
+    .filter(Boolean);
+  if ('IntersectionObserver' in window && sections.length){
+    var obs = new IntersectionObserver(function(entries){
+      entries.forEach(function(e){
+        if (e.isIntersecting){
+          links.forEach(function(a){ a.classList.remove('active'); });
+          (byId[e.target.id] || []).forEach(function(a){ a.classList.add('active'); });
+        }
+      });
+    }, { rootMargin: '-20% 0px -70% 0px' });
+    sections.forEach(function(s){ obs.observe(s); });
+  }
+})();
+</script>
+</body>
+</html>

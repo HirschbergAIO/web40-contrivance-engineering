@@ -1,0 +1,7 @@
+Somewhere out there is a small-business website built in 2014, still running fine — and completely frozen. Every text change means finding the developer, waiting a week, and a $75 invoice for swapping a phone number.
+
+New developer guide (article 2 in my Web 4.0 Contrivance Engineering series): how to unfreeze static HTML sites by moving them to Next.js on GitHub + Vercel — installing an AI assistant as the CMS the site never had. No database to escape, so you migrate one page at a time.
+
+Read it here: https://hirschbergaio.github.io/web40-contrivance-engineering/static-html-to-nextjs-ai-cms/
+
+#webdev #nextjs

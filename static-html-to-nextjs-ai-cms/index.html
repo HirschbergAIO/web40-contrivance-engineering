@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Goodbye FTP: Static HTML Sites to Next.js + GitHub + Vercel, with an AI Assistant as Your CMS</title>
+<meta name="description" content="A field guide for web developers: move static HTML sites to Next.js on GitHub + Vercel, and install an AI assistant as the CMS they never had.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#FBF9F5;
+    --paper-deep:#F4F0E8;
+    --ink:#1C1917;
+    --muted:#78716C;
+    --faint:#A8A29E;
+    --line:#E7E1D6;
+    --accent:#9A3412;
+    --accent-bright:#C2410C;
+    --accent-soft:#FBEFE4;
+    --code-bg:#F3EEE5;
+    --callout-bg:#FDf8EF;
+    --radius:12px;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    margin:0;
+    background:var(--paper);
+    color:var(--ink);
+    font-family:"Source Serif 4",Georgia,"Times New Roman",serif;
+    font-size:1.125rem;
+    line-height:1.8;
+    -webkit-font-smoothing:antialiased;
+  }
+  ::selection{background:#F5D9BC}
+
+  .page{
+    display:grid;
+    grid-template-columns:230px minmax(0,44rem);
+    gap:4.5rem;
+    max-width:72rem;
+    margin:0 auto;
+    padding:4.5rem 2rem 6rem;
+    justify-content:center;
+  }
+
+  /* ---------- Table of contents ---------- */
+  .toc{
+    position:sticky;
+    top:2.5rem;
+    align-self:start;
+    font-family:Inter,system-ui,sans-serif;
+    font-size:.82rem;
+    line-height:1.5;
+    max-height:calc(100vh - 5rem);
+    overflow:auto;
+    padding-right:.5rem;
+  }
+  .toc .toc-label{
+    text-transform:uppercase;
+    letter-spacing:.14em;
+    font-size:.68rem;
+    font-weight:600;
+    color:var(--faint);
+    margin-bottom:.9rem;
+  }
+  .toc ol{list-style:none;margin:0;padding:0}
+  .toc li{margin:0 0 .15rem}
+  .toc a{
+    display:block;
+    color:var(--muted);
+    text-decoration:none;
+    padding:.28rem .6rem;
+    border-left:2px solid var(--line);
+    transition:color .15s,border-color .15s;
+  }
+  .toc a:hover{color:var(--ink)}
+  .toc a.active{color:var(--accent);border-left-color:var(--accent);font-weight:500}
+  .toc ol ol a{padding-left:1.3rem;font-size:.76rem}
+
+  /* ---------- Article ---------- */
+  .article{min-width:0}
+  .kicker{
+    font-family:Inter,system-ui,sans-serif;
+    text-transform:uppercase;
+    letter-spacing:.18em;
+    font-size:.72rem;
+    font-weight:600;
+    color:var(--accent);
+    margin:0 0 1.4rem;
+  }
+  h1{
+    font-family:Fraunces,Georgia,serif;
+    font-weight:600;
+    font-size:clamp(2.4rem,5vw,3.4rem);
+    line-height:1.08;
+    letter-spacing:-0.015em;
+    margin:0 0 1.4rem;
+    text-wrap:balance;
+  }
+  .lede{
+    font-size:1.35rem;
+    line-height:1.65;
+    color:#44403C;
+    margin:0 0 2rem;
+    text-wrap:pretty;
+  }
+  .byline{
+    display:flex;
+    flex-wrap:wrap;
+    gap:.4rem 1.2rem;
+    align-items:center;
+    font-family:Inter,system-ui,sans-serif;
+    font-size:.82rem;
+    color:var(--muted);
+    padding:1.1rem 0;
+    border-top:1px solid var(--line);
+    border-bottom:1px solid var(--line);
+    margin-bottom:3rem;
+  }
+  .byline strong{color:var(--ink);font-weight:600}
+  .byline .dot{color:var(--faint)}
+
+  section{margin-bottom:3.5rem;scroll-margin-top:2rem}
+  h2{
+    font-family:Fraunces,Georgia,serif;
+    font-weight:600;
+    font-size:2rem;
+    line-height:1.25;
+    letter-spacing:-0.01em;
+    margin:0 0 1.2rem;
+    padding-top:1rem;
+    scroll-margin-top:1.5rem;
+    counter-increment:part;
+  }
+  h2 .part-num{
+    display:block;
+    font-family:Inter,system-ui,sans-serif;
+    font-size:.72rem;
+    font-weight:600;
+    text-transform:uppercase;
+    letter-spacing:.18em;
+    color:var(--accent);
+    margin-bottom:.5rem;
+  }
+  h3{
+    font-family:Fraunces,Georgia,serif;
+    font-weight:600;
+    font-size:1.35rem;
+    line-height:1.35;
+    margin:2.4rem 0 .8rem;
+    scroll-margin-top:1.5rem;
+  }
+  p{margin:0 0 1.3rem;text-wrap:pretty}
+  .dropcap::first-letter{
+    font-family:Fraunces,Georgia,serif;
+    font-weight:700;
+    font-size:3.6em;
+    line-height:.85;
+    float:left;
+    padding:.06em .12em 0 0;
+    color:var(--accent);
+  }
+  a{color:var(--accent-bright);text-decoration-thickness:1px;text-underline-offset:3px}
+  a:hover{color:var(--accent)}
+  strong{font-weight:600}
+  ul,ol{margin:0 0 1.3rem;padding-left:1.4rem}
+  li{margin-bottom:.45rem}
+  li::marker{color:var(--accent)}
+
+  /* diagram */
+  .diagram{
+    font-family:"JetBrains Mono",ui-monospace,Menlo,monospace;
+    font-size:.8rem;
+    line-height:1.7;
+    background:var(--ink);
+    color:#EDE6D8;
+    border-radius:var(--radius);
+    padding:1.4rem 1.6rem;
+    overflow-x:auto;
+    margin:1.8rem 0;
+    white-space:pre;
+  }
+  .diagram .hl{color:#F0B46A}
+
+  /* code */
+  code{
+    font-family:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+    font-size:.82em;
+    background:var(--code-bg);
+    border:1px solid var(--line);
+    border-radius:6px;
+    padding:.12em .42em;
+    white-space:nowrap;
+  }
+  .codeblock{
+    margin:1.8rem 0;
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    overflow:hidden;
+    background:#FFFDF9;
+  }
+  .codeblock-header{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:1rem;
+    padding:.55rem 1rem;
+    background:var(--paper-deep);
+    border-bottom:1px solid var(--line);
+    font-family:Inter,system-ui,sans-serif;
+    font-size:.74rem;
+    color:var(--muted);
+  }
+  .codeblock-header .lang{
+    font-weight:600;
+    text-transform:uppercase;
+    letter-spacing:.1em;
+    font-size:.66rem;
+  }
+  .copy-btn{
+    font-family:Inter,system-ui,sans-serif;
+    font-size:.72rem;
+    font-weight:500;
+    color:var(--muted);
+    background:transparent;
+    border:1px solid var(--line);
+    border-radius:8px;
+    padding:.28rem .7rem;
+    cursor:pointer;
+    transition:all .15s;
+  }
+  .copy-btn:hover{color:var(--ink);border-color:var(--faint)}
+  .copy-btn.copied{color:var(--accent);border-color:var(--accent)}
+  .codeblock pre{
+    margin:0;
+    padding:1.2rem 1.4rem;
+    overflow-x:auto;
+    font-family:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+    font-size:.83rem;
+    line-height:1.7;
+  }
+  .codeblock pre code{
+    background:none;border:none;padding:0;white-space:pre;font-size:1em;
+  }
+  /* tiny syntax tint */
+  .tok-k{color:#9A3412;font-weight:500}
+  .tok-s{color:#3F6212}
+  .tok-c{color:#A8A29E;font-style:italic}
+  .tok-f{color:#1D4ED8}
+
+  /* tables */
+  .table-wrap{overflow-x:auto;margin:1.8rem 0;border:1px solid var(--line);border-radius:var(--radius)}
+  table{
+    width:100%;
+    border-collapse:collapse;
+    font-family:Inter,system-ui,sans-serif;
+    font-size:.86rem;
+    line-height:1.55;
+    background:#FFFDF9;
+  }
+  th{
+    text-align:left;
+    font-size:.7rem;
+    text-transform:uppercase;
+    letter-spacing:.1em;
+    color:var(--muted);
+    font-weight:600;
+    padding:.9rem 1.1rem;
+    background:var(--paper-deep);
+    border-bottom:1px solid var(--line);
+    white-space:nowrap;
+  }
+  td{padding:.85rem 1.1rem;border-bottom:1px solid var(--line);vertical-align:top}
+  tr:last-child td{border-bottom:none}
+  td code{white-space:normal}
+
+  /* callout */
+  .callout{
+    background:var(--callout-bg);
+    border:1px solid #EBD9BE;
+    border-left:4px solid var(--accent-bright);
+    border-radius:0 var(--radius) var(--radius) 0;
+    padding:1.2rem 1.5rem;
+    margin:1.8rem 0;
+    font-size:1.02rem;
+  }
+  .callout p{margin:0}
+  .callout strong{color:var(--accent)}
+
+  /* dialogue */
+  .dialogue{margin:1.8rem 0;display:flex;flex-direction:column;gap:.9rem}
+  .turn{
+    border-radius:var(--radius);
+    padding:1rem 1.3rem;
+    font-size:1.02rem;
+    line-height:1.7;
+  }
+  .turn p{margin:0}
+  .turn .who{
+    display:block;
+    font-family:Inter,system-ui,sans-serif;
+    font-size:.68rem;
+    font-weight:600;
+    text-transform:uppercase;
+    letter-spacing:.14em;
+    margin-bottom:.4rem;
+  }
+  .turn.you{background:#FFFDF9;border:1px solid var(--line)}
+  .turn.you .who{color:var(--muted)}
+  .turn.ai{background:var(--accent-soft);border:1px solid #F0DCC4}
+  .turn.ai .who{color:var(--accent)}
+
+  /* repo tree */
+  .tree{
+    font-family:"JetBrains Mono",ui-monospace,Menlo,monospace;
+    font-size:.83rem;
+    line-height:1.75;
+    background:#FFFDF9;
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    padding:1.3rem 1.5rem;
+    margin:1.8rem 0;
+    overflow-x:auto;
+    white-space:pre;
+  }
+  .tree .cm{color:var(--faint)}
+
+  hr.ornament{
+    border:none;
+    text-align:center;
+    margin:3.5rem 0;
+    color:var(--faint);
+    font-size:1.1rem;
+    letter-spacing:.6em;
+  }
+  hr.ornament::after{content:"⁂"}
+
+  .checklist{
+    list-style:none;
+    padding:0;
+    margin:1.8rem 0;
+    counter-reset:step;
+  }
+  .checklist li{
+    position:relative;
+    padding:1rem 1.2rem 1rem 3.6rem;
+    background:#FFFDF9;
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    margin-bottom:.8rem;
+    counter-increment:step;
+  }
+  .checklist li::before{
+    content:counter(step);
+    position:absolute;
+    left:1.2rem;top:1rem;
+    width:1.7rem;height:1.7rem;
+    border-radius:50%;
+    background:var(--accent);
+    color:#fff;
+    font-family:Inter,system-ui,sans-serif;
+    font-size:.8rem;font-weight:600;
+    display:flex;align-items:center;justify-content:center;
+  }
+  .checklist li::marker{content:""}
+  .checklist code{white-space:normal}
+
+  footer.colophon{
+    margin-top:4rem;
+    padding-top:2rem;
+    border-top:1px solid var(--line);
+    font-family:Inter,system-ui,sans-serif;
+    font-size:.82rem;
+    color:var(--muted);
+    line-height:1.7;
+  }
+  footer.colophon em{
+    font-family:"Source Serif 4",Georgia,serif;
+    font-size:1rem;
+    color:var(--ink);
+    display:block;
+    margin-bottom:1rem;
+  }
+
+  @media (max-width:60rem){
+    .page{grid-template-columns:1fr;gap:0;padding-top:3rem}
+    .toc{
+      position:static;
+      max-height:none;
+      background:#FFFDF9;
+      border:1px solid var(--line);
+      border-radius:var(--radius);
+      padding:1.2rem 1.4rem;
+      margin-bottom:2.5rem;
+    }
+    .toc ol ol{display:none}
+  }
+  @media print{
+    .toc,.copy-btn{display:none}
+    .page{display:block;padding:0}
+    body{font-size:11pt;background:#fff}
+    section{break-inside:avoid}
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <aside class="toc" aria-label="Table of contents">
+    <div class="toc-label">On this page</div>
+    <ol>
+      <li><a href="#the-frame">The frame</a></li>
+      <li><a href="#part-1">The architecture</a></li>
+      <li><a href="#part-2">Migration playbook</a>
+        <ol>
+          <li><a href="#step-1">1 · Audit the fossil</a></li>
+          <li><a href="#step-2">2 · Componentize</a></li>
+          <li><a href="#step-3">3 · Extract content</a></li>
+          <li><a href="#step-4">4 · Asset pipeline</a></li>
+          <li><a href="#step-5">5 · Hidden backends</a></li>
+          <li><a href="#step-6">6 · URLs</a></li>
+          <li><a href="#step-7">7 · Deploy</a></li>
+          <li><a href="#step-8">8 · Cutover</a></li>
+        </ol>
+      </li>
+      <li><a href="#part-3">The AI assistant as your CMS</a>
+        <ol><li><a href="#prompt-library">Prompt library</a></li></ol>
+      </li>
+      <li><a href="#part-4">Honest tradeoffs</a></li>
+      <li><a href="#part-5">Pitching the unfreezing</a></li>
+      <li><a href="#start">Start this weekend</a></li>
+    </ol>
+  </aside>
+
+  <main class="article">
+    <header>
+      <p class="kicker">Web 4.0 · Contrivance Engineering — Article 2</p>
+      <h1>Goodbye FTP: move static HTML sites to Next.js + GitHub + Vercel, with an AI assistant as your CMS</h1>
+      <p class="lede">The static HTML site is the web's cockroach: small-business sites built in 2014, hand-rolled portfolios, "my nephew made it" sites. They still work, they're fast, they cost almost nothing — and they are completely frozen, because every text change means finding the developer and getting a $75 invoice for swapping a phone number.</p>
+      <div class="byline">
+        <span><strong>Andrew Good</strong></span><span class="dot">·</span>
+        <span>October 3, 2026</span><span class="dot">·</span>
+        <span>10 min read</span>
+      </div>
+    </header>
+
+    <section id="the-frame">
+      <h2><span class="part-num">The frame</span>Installing a CMS where none existed</h2>
+      <p class="dropcap">The series thesis, compressed: a CMS was only ever two jobs — <strong>store content with structure</strong> (git does it better than anything) and <strong>give non-technical people a way to change it</strong> (language beats dashboards). The contrivance rebuilds the loop — <em>intent → change → review → publish</em> — from four cheap parts: a chat, a branch, a preview URL, and a merge.</p>
+      <p>WordPress migrations <em>replace</em> a CMS. Static-site migrations <em>install</em> one where none existed. The pitch isn't “lose the dashboard” — it's “stop emailing a developer to change a sentence.” Everything that follows is tuned for that starting point.</p>
+      <p>This is the second article in the series; the first covered WordPress.</p>
+    </section>
+
+    <hr class="ornament">
+
+    <section id="part-1">
+      <h2><span class="part-num">Part 1</span>The architecture</h2>
+      <p>Same four pieces as the flagship article: <strong>Next.js</strong> renders the site, <strong>GitHub</strong> is the database, <strong>Vercel</strong> hosts it with a preview deployment for every change, and <strong>an AI assistant</strong> is the CMS. Two things are different for static sites:</p>
+      <ol>
+        <li><strong>The migration can be incremental.</strong> No database means no big-bang cutover. Move one page — or one section — at a time, strangler-fig style. The old site keeps serving everything you haven't moved yet.</li>
+        <li><strong>FTP dies on day one.</strong> Even before a single page migrates, getting the site into git and deploying from Vercel is a pure upgrade: full history, preview URLs, one-click rollback. Most static sites are still deployed by dragging files into FileZilla. That ends now.</li>
+      </ol>
+      <div class="diagram">Old world:  edit file <span class="hl">→</span> FTP upload <span class="hl">→</span> pray <span class="hl">→</span> (no history, no preview, no undo)
+New world:  chat <span class="hl">→</span> branch <span class="hl">→</span> preview URL <span class="hl">→</span> approve <span class="hl">→</span> merge <span class="hl">→</span> deployed</div>
+    </section>
+
+    <hr class="ornament">
+
+    <section id="part-2">
+      <h2><span class="part-num">Part 2</span>The migration playbook</h2>
+
+      <h3 id="step-1">Step 1 — Audit the fossil</h3>
+      <p>Static sites accumulate quirks. Inventory them before touching anything:</p>
+      <ol>
+        <li><strong>Page inventory</strong> — list every <code>.html</code> file. Note which ones are actually visited (analytics, if it exists) and which are dead weight from 2016.</li>
+        <li><strong>Find the copy-paste.</strong> Open three pages and diff the header, nav, and footer by eye. On hand-built sites they're usually duplicated verbatim across every page — sometimes with drift (the phone number updated on 8 of 11 pages). Count the duplications; that's your componentization hit list.</li>
+        <li><strong>Asset inventory</strong> — CSS files (one? twelve?), JS (jQuery version? slider/lightbox plugins?), images (anyone still shipping 4MB PNGs?), fonts.</li>
+        <li><strong>Hidden backends.</strong> The site may be “static” with a PHP contact form (<code>mail.php</code>) hiding next to the HTML, or server-side includes. Find them now.</li>
+        <li><strong>FTP/hosting reality.</strong> Who hosts it? Do you have the FTP credentials? Is there even a backup?</li>
+      </ol>
+
+      <h3 id="step-2">Step 2 — Componentize: the big mechanical win</h3>
+      <p>This is where the AI assistant earns its keep immediately. The duplicated header/nav/footer across N pages becomes one layout component:</p>
+      <ol>
+        <li>Scaffold the Next.js app (<code>npx create-next-app@latest</code>).</li>
+        <li>Hand the assistant three representative pages: <em>“Extract the shared header, navigation, and footer into a single layout component. Flag any drift between pages — content that differs and needs a human decision.”</em></li>
+        <li>That drift-flagging is the valuable part. The assistant finds the 8-of-11 phone numbers and asks which is correct — work that takes a human an afternoon of squinting.</li>
+      </ol>
+      <div class="tree">before:  index.html, about.html, contact.html … <span class="cm"># header/nav/footer pasted into each</span>
+after:   app/layout.tsx   <span class="cm"># header/nav/footer live here, once</span>
+         app/page.tsx, app/about/page.tsx, app/contact/page.tsx  <span class="cm"># only unique content</span></div>
+      <p>One edit now propagates everywhere. That alone unfreezes half the site's maintenance burden.</p>
+
+      <h3 id="step-3">Step 3 — Extract content into Markdown</h3>
+      <p>With the layout componentized, pull the page copy out of the HTML into Markdown files with frontmatter — the same content layer as the WordPress article (<code>content/pages/</code>, gray-matter, <code>generateStaticParams</code>). The assistant does the extraction mechanically: <em>“Convert about.html's main content to Markdown with title and description frontmatter.”</em></p>
+      <div class="callout">
+        <p><strong>The incremental option:</strong> you don't have to do every page. Leave rarely-changed pages as-is — even as raw HTML routes — and convert only the pages that change often: pricing, hours, news, team. Migrate the pain first.</p>
+      </div>
+
+      <h3 id="step-4">Step 4 — Modernize the asset pipeline, gently</h3>
+      <ul>
+        <li><strong>CSS:</strong> don't rewrite it on day one. Drop the existing stylesheet in as-is; it works. Migrate to Tailwind incrementally, component by component, when you're touching things anyway.</li>
+        <li><strong>Images:</strong> run them through <code>next/image</code> and convert the worst offenders to WebP/AVIF — <em>“find every image over 500KB”</em> is a one-sentence job for the assistant now.</li>
+        <li><strong>JavaScript:</strong> audit, don't reflexively rewrite. A working jQuery slider can stay a working jQuery slider. Replace things when they break or need to change — not for fashion.</li>
+        <li><strong>Fonts:</strong> self-host or keep the existing links; just make sure they're not blocking render.</li>
+      </ul>
+
+      <h3 id="step-5">Step 5 — Replace the hidden backends</h3>
+      <p>That PHP mail script becomes a Next.js Server Action with Resend or Formspree — same as the WordPress playbook. Server-side includes became components back in Step&nbsp;2. Anything else server-side gets a decision: rebuild, replace with a service, or drop.</p>
+
+      <h3 id="step-6">Step 6 — URLs: the easiest redirect story in the series</h3>
+      <p>Static sites usually have clean 1:1 URLs already (<code>/about.html</code> → <code>/about</code>, or keep the <code>.html</code>). Retain them verbatim — the series rule stands: the best redirect is the one you never need. If you're dropping <code>.html</code> extensions, the redirect map is usually a dozen lines.</p>
+
+      <h3 id="step-7">Step 7 — Deploy: GitHub + Vercel, branches included</h3>
+      <p>Push to GitHub, import into Vercel, point DNS. Set up the same development → staging → production branch ladder as the WordPress article: feature branches get preview URLs, <code>staging</code> is the review environment, <code>main</code> is production, branch protection on both. The assistant works on branches; nothing ships without a preview you've seen.</p>
+
+      <h3 id="step-8">Step 8 — Cutover: lower risk than WordPress</h3>
+      <p>There's no database to freeze and no plugin ecosystem to replicate, so cutover is anticlimactic — which is the point:</p>
+      <ol>
+        <li>Move the pages that matter, verify on staging, merge to <code>main</code>.</li>
+        <li>Switch DNS to Vercel (and yes — copy the MX records first, same pitfall as ever).</li>
+        <li>Keep the old hosting account for 30 days as instant rollback.</li>
+        <li>Cancel the old hosting once the dust settles. Pocket the savings.</li>
+      </ol>
+
+      <h3 id="pitfalls">Don't skip: the pitfalls list</h3>
+      <ul>
+        <li><strong>Character encoding.</strong> Old sites in Latin-1/Windows-1252 with curly quotes will mojibake when moved to UTF-8. Convert and check.</li>
+        <li><strong>The PHP form nobody mentioned.</strong> There's always one. Test every form on staging.</li>
+        <li><strong>Hardcoded absolute URLs</strong> (<code>http://www.example.com/images/…</code>) scattered through the HTML — normalize to relative paths or the new domain.</li>
+        <li><strong>The <code>.htaccess</code> rules.</strong> Redirects, password-protected directories, custom error pages — read it before you abandon Apache.</li>
+        <li><strong>Email, again.</strong> MX records. Every time.</li>
+      </ul>
+    </section>
+
+    <hr class="ornament">
+
+    <section id="part-3">
+      <h2><span class="part-num">Part 3</span>The AI assistant as your CMS</h2>
+      <p class="dropcap">For WordPress migrants the assistant <em>replaces</em> wp-admin. Here it <em>becomes</em> the CMS the site never had. The owner's new workflow for a change that used to mean “email the developer”:</p>
+      <div class="dialogue">
+        <div class="turn you">
+          <span class="who">Owner</span>
+          <p>“Our holiday hours are Dec 24–26, closed. Update everywhere hours appear.”</p>
+        </div>
+        <div class="turn ai">
+          <span class="who">Assistant</span>
+          <p>Finds every page mentioning hours — now that content is Markdown, this is trivial — updates them on a branch, opens a preview.</p>
+        </div>
+        <div class="turn you">
+          <span class="who">Owner</span>
+          <p>Checks the preview on their phone. “Looks right.”</p>
+        </div>
+        <div class="turn ai">
+          <span class="who">Assistant</span>
+          <p>Merge → staging → production. Live in minutes.</p>
+        </div>
+      </div>
+      <p>No FTP. No invoice for a phone number. No week of waiting.</p>
+
+      <h3 id="prompt-library">The static-site prompt library — steal these</h3>
+      <ul>
+        <li><em>“Find every page that mentions our old address and update it to [new address]. Open a PR against staging.”</em></li>
+        <li><em>“Add this announcement banner to the top of every page until [date]: [text].”</em></li>
+        <li><em>“Our menu PDF changed — replace it everywhere it's linked and confirm no page 404s.”</em></li>
+        <li><em>“Audit the site for pages that haven't been updated in 2+ years and list them with their last-modified dates from git.”</em></li>
+        <li><em>“Convert the gallery page's inline images to next/image with proper alt text.”</em></li>
+      </ul>
+    </section>
+
+    <hr class="ornament">
+
+    <section id="part-4">
+      <h2><span class="part-num">Part 4</span>Honest tradeoffs: when to leave the fossil alone</h2>
+      <ul>
+        <li><strong>A 3-page site that changes once a year</strong> and the owner is happy emailing you? The migration still pays off eventually, but be honest that the ROI clock runs on change frequency. Quote accordingly.</li>
+        <li><strong>Don't rewrite working JavaScript for fashion.</strong> jQuery isn't a moral failing. Replace it when it blocks something, not because it's old.</li>
+        <li><strong>Someone still has to approve merges.</strong> If the owner won't click “approve” on a preview, the AI CMS stalls the same way any CMS stalls without an editor. Set that expectation up front.</li>
+      </ul>
+    </section>
+
+    <hr class="ornament">
+
+    <section id="part-5">
+      <h2><span class="part-num">Part 5</span>Pitching it: selling the unfreezing</h2>
+      <p class="dropcap">Static-site owners don't complain about dashboards — they complain about <em>friction</em>. Every change is an email, a wait, and an invoice. Your pitch:</p>
+      <ul>
+        <li><strong>“Your website is frozen. I'll unfreeze it.”</strong> After the migration, text changes are a message, not a work order. They describe it, see a preview, approve — live in minutes.</li>
+        <li><strong>“You'll stop paying developer rates for sentences.”</strong> The $75 phone-number swap goes away forever.</li>
+        <li><strong>“Nothing your customers see changes unless you want it to.”</strong> Same design, same URLs, same Google rankings — the migration is invisible to visitors. All the change is behind the curtain: git history, preview links, instant rollback.</li>
+        <li><strong>The hosting bill probably drops too.</strong> That $15/mo cPanel account becomes Vercel's free tier.</li>
+      </ul>
+      <p>Objection handling mirrors the WordPress article: nothing publishes without approval — safer than FTP, where anyone with credentials overwrites live files — and everything lives in <em>their</em> GitHub repo. No lock-in; any developer can take over.</p>
+    </section>
+
+    <hr class="ornament">
+
+    <section id="start">
+      <h2><span class="part-num">Coda</span>Getting started this weekend</h2>
+      <ol class="checklist">
+        <li><code>npx create-next-app@latest</code> — scaffold it.</li>
+        <li>Feed the assistant your homepage + two inner pages: <em>“extract the shared layout.”</em></li>
+        <li>Push to GitHub, import into Vercel, open the preview URL next to the live site.</li>
+        <li>Then: <em>“migrate the rest, starting with the pages that change most.”</em></li>
+      </ol>
+      <p>The future CMS isn't a dashboard. It's a conversation — with git as the memory and the edge as the server.</p>
+    </section>
+
+    <footer class="colophon">
+      <em>Second in the Web 4.0 Contrivance Engineering series. Built the way it describes: written with an AI assistant, versioned on GitHub, deployed on Vercel.</em>
+      <p>To publish this page with GitHub Pages: place this file as <code>index.html</code> at the root of a repository (or in <code>/docs</code>), then enable Pages under the repo's Settings → Pages. No build step required — it's a single self-contained file.</p>
+    </footer>
+  </main>
+</div>
+<script>
+(function(){
+  // Copy buttons
+  document.querySelectorAll('.copy-btn').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      var code = btn.closest('.codeblock').querySelector('pre code').innerText;
+      navigator.clipboard.writeText(code).then(function(){
+        btn.textContent = 'Copied';
+        btn.classList.add('copied');
+        setTimeout(function(){ btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 1600);
+      });
+    });
+  });
+
+  // Active TOC highlighting
+  var links = Array.prototype.slice.call(document.querySelectorAll('.toc a'));
+  var byId = {};
+  links.forEach(function(a){
+    var id = a.getAttribute('href').slice(1);
+    (byId[id] = byId[id] || []).push(a);
+  });
+  var sections = Object.keys(byId).map(function(id){ return document.getElementById(id); })
+    .filter(Boolean);
+  if ('IntersectionObserver' in window && sections.length){
+    var obs = new IntersectionObserver(function(entries){
+      entries.forEach(function(e){
+        if (e.isIntersecting){
+          links.forEach(function(a){ a.classList.remove('active'); });
+          (byId[e.target.id] || []).forEach(function(a){ a.classList.add('active'); });
+        }
+      });
+    }, { rootMargin: '-20% 0px -70% 0px' });
+    sections.forEach(function(s){ obs.observe(s); });
+  }
+})();
+</script>
+</body>
+</html>

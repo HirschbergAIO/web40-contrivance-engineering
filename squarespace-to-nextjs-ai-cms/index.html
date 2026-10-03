@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Goodbye Template Cage: Move Squarespace Sites to Next.js + GitHub + Vercel, with an AI Assistant as Your CMS</title>
+<meta name="description" content="A field guide for web developers: move Squarespace sites to Next.js on GitHub + Vercel — keep the beauty, lose the cage — with an AI assistant as your CMS.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#FBF9F5;
+    --paper-deep:#F4F0E8;
+    --ink:#1C1917;
+    --muted:#78716C;
+    --faint:#A8A29E;
+    --line:#E7E1D6;
+    --accent:#9A3412;
+    --accent-bright:#C2410C;
+    --accent-soft:#FBEFE4;
+    --code-bg:#F3EEE5;
+    --callout-bg:#FDf8EF;
+    --radius:12px;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    margin:0;
+    background:var(--paper);
+    color:var(--ink);
+    font-family:"Source Serif 4",Georgia,"Times New Roman",serif;
+    font-size:1.125rem;
+    line-height:1.8;
+    -webkit-font-smoothing:antialiased;
+  }
+  ::selection{background:#F5D9BC}
+
+  .page{
+    display:grid;
+    grid-template-columns:230px minmax(0,44rem);
+    gap:4.5rem;
+    max-width:72rem;
+    margin:0 auto;
+    padding:4.5rem 2rem 6rem;
+    justify-content:center;
+  }
+
+  /* ---------- Table of contents ---------- */
+  .toc{
+    position:sticky;
+    top:2.5rem;
+    align-self:start;
+    font-family:Inter,system-ui,sans-serif;
+    font-size:.82rem;
+    line-height:1.5;
+    max-height:calc(100vh - 5rem);
+    overflow:auto;
+    padding-right:.5rem;
+  }
+  .toc .toc-label{
+    text-transform:uppercase;
+    letter-spacing:.14em;
+    font-size:.68rem;
+    font-weight:600;
+    color:var(--faint);
+    margin-bottom:.9rem;
+  }
+  .toc ol{list-style:none;margin:0;padding:0}
+  .toc li{margin:0 0 .15rem}
+  .toc a{
+    display:block;
+    color:var(--muted);
+    text-decoration:none;
+    padding:.28rem .6rem;
+    border-left:2px solid var(--line);
+    transition:color .15s,border-color .15s;
+  }
+  .toc a:hover{color:var(--ink)}
+  .toc a.active{color:var(--accent);border-left-color:var(--accent);font-weight:500}
+  .toc ol ol a{padding-left:1.3rem;font-size:.76rem}
+
+  /* ---------- Article ---------- */
+  .article{min-width:0}
+  .kicker{
+    font-family:Inter,system-ui,sans-serif;
+    text-transform:uppercase;
+    letter-spacing:.18em;
+    font-size:.72rem;
+    font-weight:600;
+    color:var(--accent);
+    margin:0 0 1.4rem;
+  }
+  h1{
+    font-family:Fraunces,Georgia,serif;
+    font-weight:600;
+    font-size:clamp(2.4rem,5vw,3.4rem);
+    line-height:1.08;
+    letter-spacing:-0.015em;
+    margin:0 0 1.4rem;
+    text-wrap:balance;
+  }
+  .lede{
+    font-size:1.35rem;
+    line-height:1.65;
+    color:#44403C;
+    margin:0 0 2rem;
+    text-wrap:pretty;
+  }
+  .byline{
+    display:flex;
+    flex-wrap:wrap;
+    gap:.4rem 1.2rem;
+    align-items:center;
+    font-family:Inter,system-ui,sans-serif;
+    font-size:.82rem;
+    color:var(--muted);
+    padding:1.1rem 0;
+    border-top:1px solid var(--line);
+    border-bottom:1px solid var(--line);
+    margin-bottom:3rem;
+  }
+  .byline strong{color:var(--ink);font-weight:600}
+  .byline .dot{color:var(--faint)}
+
+  section{margin-bottom:3.5rem;scroll-margin-top:2rem}
+  h2{
+    font-family:Fraunces,Georgia,serif;
+    font-weight:600;
+    font-size:2rem;
+    line-height:1.25;
+    letter-spacing:-0.01em;
+    margin:0 0 1.2rem;
+    padding-top:1rem;
+    scroll-margin-top:1.5rem;
+    counter-increment:part;
+  }
+  h2 .part-num{
+    display:block;
+    font-family:Inter,system-ui,sans-serif;
+    font-size:.72rem;
+    font-weight:600;
+    text-transform:uppercase;
+    letter-spacing:.18em;
+    color:var(--accent);
+    margin-bottom:.5rem;
+  }
+  h3{
+    font-family:Fraunces,Georgia,serif;
+    font-weight:600;
+    font-size:1.35rem;
+    line-height:1.35;
+    margin:2.4rem 0 .8rem;
+    scroll-margin-top:1.5rem;
+  }
+  p{margin:0 0 1.3rem;text-wrap:pretty}
+  .dropcap::first-letter{
+    font-family:Fraunces,Georgia,serif;
+    font-weight:700;
+    font-size:3.6em;
+    line-height:.85;
+    float:left;
+    padding:.06em .12em 0 0;
+    color:var(--accent);
+  }
+  a{color:var(--accent-bright);text-decoration-thickness:1px;text-underline-offset:3px}
+  a:hover{color:var(--accent)}
+  strong{font-weight:600}
+  ul,ol{margin:0 0 1.3rem;padding-left:1.4rem}
+  li{margin-bottom:.45rem}
+  li::marker{color:var(--accent)}
+
+  /* diagram */
+  .diagram{
+    font-family:"JetBrains Mono",ui-monospace,Menlo,monospace;
+    font-size:.8rem;
+    line-height:1.7;
+    background:var(--ink);
+    color:#EDE6D8;
+    border-radius:var(--radius);
+    padding:1.4rem 1.6rem;
+    overflow-x:auto;
+    margin:1.8rem 0;
+    white-space:pre;
+  }
+  .diagram .hl{color:#F0B46A}
+
+  /* code */
+  code{
+    font-family:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+    font-size:.82em;
+    background:var(--code-bg);
+    border:1px solid var(--line);
+    border-radius:6px;
+    padding:.12em .42em;
+    white-space:nowrap;
+  }
+  .codeblock{
+    margin:1.8rem 0;
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    overflow:hidden;
+    background:#FFFDF9;
+  }
+  .codeblock-header{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:1rem;
+    padding:.55rem 1rem;
+    background:var(--paper-deep);
+    border-bottom:1px solid var(--line);
+    font-family:Inter,system-ui,sans-serif;
+    font-size:.74rem;
+    color:var(--muted);
+  }
+  .codeblock-header .lang{
+    font-weight:600;
+    text-transform:uppercase;
+    letter-spacing:.1em;
+    font-size:.66rem;
+  }
+  .copy-btn{
+    font-family:Inter,system-ui,sans-serif;
+    font-size:.72rem;
+    font-weight:500;
+    color:var(--muted);
+    background:transparent;
+    border:1px solid var(--line);
+    border-radius:8px;
+    padding:.28rem .7rem;
+    cursor:pointer;
+    transition:all .15s;
+  }
+  .copy-btn:hover{color:var(--ink);border-color:var(--faint)}
+  .copy-btn.copied{color:var(--accent);border-color:var(--accent)}
+  .codeblock pre{
+    margin:0;
+    padding:1.2rem 1.4rem;
+    overflow-x:auto;
+    font-family:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+    font-size:.83rem;
+    line-height:1.7;
+  }
+  .codeblock pre code{
+    background:none;border:none;padding:0;white-space:pre;font-size:1em;
+  }
+  /* tiny syntax tint */
+  .tok-k{color:#9A3412;font-weight:500}
+  .tok-s{color:#3F6212}
+  .tok-c{color:#A8A29E;font-style:italic}
+  .tok-f{color:#1D4ED8}
+
+  /* tables */
+  .table-wrap{overflow-x:auto;margin:1.8rem 0;border:1px solid var(--line);border-radius:var(--radius)}
+  table{
+    width:100%;
+    border-collapse:collapse;
+    font-family:Inter,system-ui,sans-serif;
+    font-size:.86rem;
+    line-height:1.55;
+    background:#FFFDF9;
+  }
+  th{
+    text-align:left;
+    font-size:.7rem;
+    text-transform:uppercase;
+    letter-spacing:.1em;
+    color:var(--muted);
+    font-weight:600;
+    padding:.9rem 1.1rem;
+    background:var(--paper-deep);
+    border-bottom:1px solid var(--line);
+    white-space:nowrap;
+  }
+  td{padding:.85rem 1.1rem;border-bottom:1px solid var(--line);vertical-align:top}
+  tr:last-child td{border-bottom:none}
+  td code{white-space:normal}
+
+  /* callout */
+  .callout{
+    background:var(--callout-bg);
+    border:1px solid #EBD9BE;
+    border-left:4px solid var(--accent-bright);
+    border-radius:0 var(--radius) var(--radius) 0;
+    padding:1.2rem 1.5rem;
+    margin:1.8rem 0;
+    font-size:1.02rem;
+  }
+  .callout p{margin:0}
+  .callout strong{color:var(--accent)}
+
+  /* dialogue */
+  .dialogue{margin:1.8rem 0;display:flex;flex-direction:column;gap:.9rem}
+  .turn{
+    border-radius:var(--radius);
+    padding:1rem 1.3rem;
+    font-size:1.02rem;
+    line-height:1.7;
+  }
+  .turn p{margin:0}
+  .turn .who{
+    display:block;
+    font-family:Inter,system-ui,sans-serif;
+    font-size:.68rem;
+    font-weight:600;
+    text-transform:uppercase;
+    letter-spacing:.14em;
+    margin-bottom:.4rem;
+  }
+  .turn.you{background:#FFFDF9;border:1px solid var(--line)}
+  .turn.you .who{color:var(--muted)}
+  .turn.ai{background:var(--accent-soft);border:1px solid #F0DCC4}
+  .turn.ai .who{color:var(--accent)}
+
+  /* repo tree */
+  .tree{
+    font-family:"JetBrains Mono",ui-monospace,Menlo,monospace;
+    font-size:.83rem;
+    line-height:1.75;
+    background:#FFFDF9;
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    padding:1.3rem 1.5rem;
+    margin:1.8rem 0;
+    overflow-x:auto;
+    white-space:pre;
+  }
+  .tree .cm{color:var(--faint)}
+
+  hr.ornament{
+    border:none;
+    text-align:center;
+    margin:3.5rem 0;
+    color:var(--faint);
+    font-size:1.1rem;
+    letter-spacing:.6em;
+  }
+  hr.ornament::after{content:"⁂"}
+
+  .checklist{
+    list-style:none;
+    padding:0;
+    margin:1.8rem 0;
+    counter-reset:step;
+  }
+  .checklist li{
+    position:relative;
+    padding:1rem 1.2rem 1rem 3.6rem;
+    background:#FFFDF9;
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    margin-bottom:.8rem;
+    counter-increment:step;
+  }
+  .checklist li::before{
+    content:counter(step);
+    position:absolute;
+    left:1.2rem;top:1rem;
+    width:1.7rem;height:1.7rem;
+    border-radius:50%;
+    background:var(--accent);
+    color:#fff;
+    font-family:Inter,system-ui,sans-serif;
+    font-size:.8rem;font-weight:600;
+    display:flex;align-items:center;justify-content:center;
+  }
+  .checklist li::marker{content:""}
+  .checklist code{white-space:normal}
+
+  footer.colophon{
+    margin-top:4rem;
+    padding-top:2rem;
+    border-top:1px solid var(--line);
+    font-family:Inter,system-ui,sans-serif;
+    font-size:.82rem;
+    color:var(--muted);
+    line-height:1.7;
+  }
+  footer.colophon em{
+    font-family:"Source Serif 4",Georgia,serif;
+    font-size:1rem;
+    color:var(--ink);
+    display:block;
+    margin-bottom:1rem;
+  }
+
+  @media (max-width:60rem){
+    .page{grid-template-columns:1fr;gap:0;padding-top:3rem}
+    .toc{
+      position:static;
+      max-height:none;
+      background:#FFFDF9;
+      border:1px solid var(--line);
+      border-radius:var(--radius);
+      padding:1.2rem 1.4rem;
+      margin-bottom:2.5rem;
+    }
+    .toc ol ol{display:none}
+  }
+  @media print{
+    .toc,.copy-btn{display:none}
+    .page{display:block;padding:0}
+    body{font-size:11pt;background:#fff}
+    section{break-inside:avoid}
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <aside class="toc" aria-label="Table of contents">
+    <div class="toc-label">On this page</div>
+    <ol>
+      <li><a href="#the-frame">The frame</a></li>
+      <li><a href="#part-1">The architecture</a></li>
+      <li><a href="#part-2">Migration playbook</a>
+        <ol>
+          <li><a href="#step-1">1 · Audit</a></li>
+          <li><a href="#step-2">2 · Export &amp; repair</a></li>
+          <li><a href="#step-3">3 · Faithful rebuild</a></li>
+          <li><a href="#step-4">4 · Galleries</a></li>
+          <li><a href="#step-5">5 · Backends</a></li>
+          <li><a href="#step-6">6 · URLs</a></li>
+          <li><a href="#step-7">7 · Deploy</a></li>
+          <li><a href="#step-8">8 · Cutover</a></li>
+        </ol>
+      </li>
+      <li><a href="#part-3">The AI assistant as your CMS</a>
+        <ol><li><a href="#prompt-library">Prompt library</a></li></ol>
+      </li>
+      <li><a href="#part-4">Honest tradeoffs</a></li>
+      <li><a href="#part-5">Pitching it</a></li>
+      <li><a href="#start">Start this weekend</a></li>
+    </ol>
+  </aside>
+
+  <main class="article">
+    <header>
+      <p class="kicker">Web 4.0 · Contrivance Engineering — Article 5</p>
+      <h1>Goodbye Template Cage: move Squarespace sites to Next.js + GitHub + Vercel, with an AI assistant as your CMS</h1>
+      <p class="lede">Nobody chooses Squarespace by accident. Photographers, restaurants, studios, designers — they chose it for one reason: beauty. But the template is a cage, and your business lives on rented land. The pitch of this article, in a sentence: keep the beauty, lose the cage.</p>
+      <div class="byline">
+        <span><strong>Andrew Good</strong></span><span class="dot">·</span>
+        <span>October 3, 2026</span><span class="dot">·</span>
+        <span>10 min read</span>
+      </div>
+    </header>
+
+    <section id="the-frame">
+      <h2><span class="part-num">The frame</span>Beauty without rent</h2>
+      <p class="dropcap">The series thesis, compressed. <strong>“Contrivance engineering”</strong> = replacing an entire software category with a smaller, cleverer mechanism. A CMS was only ever two jobs: <strong>(1) store content with structure</strong> — git does it better than any database; <strong>(2) give non-technical people a way to change it</strong> — language beats dashboards. The loop is <em>intent → change → review → publish</em>, rebuilt from four cheap parts: a chat, a branch, a preview URL, and a merge.</p>
+      <p>For Squarespace, the frame lands differently. Squarespace didn't sell you a database — it sold you <em>taste</em>. The cage was never the content model; it's the rigidity: the section that can't do what you want, the gallery layout that almost fits, the monthly fee for the privilege. The contrivance keeps the part you paid for — the beauty, rebuilt faithfully — and discards the part you didn't: the rent, the rigidity, the roadmap you don't control.</p>
+    </section>
+
+    <hr class="ornament">
+
+    <section id="part-1">
+      <h2><span class="part-num">Part 1</span>The architecture</h2>
+      <p>Same four pieces as the rest of the series: <strong>Next.js</strong> renders the site, <strong>GitHub</strong> is the database, <strong>Vercel</strong> hosts it with a preview deployment for every change, and <strong>an AI assistant</strong> is the CMS.</p>
+      <p>What's different here — and it matters more than in any other article in this series: <strong>design fidelity is the whole job.</strong> A Squarespace client chose beauty. If the rebuilt site is 95% of the original, you've failed — the 5% is what they were paying for. So the migration starts differently: before anything moves, the AI assistant studies the live site and extracts the design system — type scale, spacing rhythm, color palette, button treatments, gallery behaviors — into a documented spec. That spec becomes the acceptance test for every rebuilt component.</p>
+      <div class="diagram">You  <span class="hl">→</span>  (chat)  <span class="hl">→</span>  AI assistant  <span class="hl">→</span>  edits Markdown/MDX + components in GitHub repo
+                                              <span class="hl">↓</span>
+                                    Vercel builds a preview URL
+                                              <span class="hl">↓</span>
+                              You review <span class="hl">→</span> merge <span class="hl">→</span> production deploys</div>
+      <p><strong>Content</strong> lives in the repo as Markdown (or MDX) files with frontmatter — same as the other articles. Galleries become structured data (image + caption + alt text) rendered by a gallery component. That separation is the quiet upgrade: on Squarespace, a gallery's <em>content</em> was fused to its <em>presentation</em>, which is why every redesign meant rebuilding every gallery by hand. Here, you restyle once and every gallery follows.</p>
+    </section>
+
+    <hr class="ornament">
+
+    <section id="part-2">
+      <h2><span class="part-num">Part 2</span>The migration playbook</h2>
+
+      <h3 id="step-1">Step 1 — Audit: find the crown jewels</h3>
+      <ol>
+        <li><strong>Page inventory</strong> — every page and its section layout. Note which pages actually earn their keep.</li>
+        <li><strong>Galleries and portfolios</strong> — the crown jewels for this audience. Inventory every gallery: image count, captions, categories, click-through behavior.</li>
+        <li><strong>Blog</strong> — if they blog, note post count, categories, tags.</li>
+        <li><strong>Commerce / Scheduling</strong> — Squarespace Commerce or Scheduling (Acuity) present? These are the hard edges (see Step 5).</li>
+        <li><strong>Forms</strong> — contact, booking inquiry, newsletter signup. Note where submissions go today.</li>
+        <li><strong>URL inventory</strong> — Squarespace blog collections typically live at <code>/blog/{slug}</code>; pages at <code>/{slug}</code>. Record them all; you'll retain them verbatim in Step 6.</li>
+      </ol>
+
+      <h3 id="step-2">Step 2 — Export: use it, then repair it</h3>
+      <p>Squarespace has an export: <strong>Settings → Advanced → Import/Export → Export</strong>, which produces a WordPress-format (WXR) XML file. Use it — but know what it is: <strong>lossy</strong>. It carries pages, blog posts, and images reasonably well. It does <em>not</em> cleanly carry gallery layouts, section styling, summary blocks, or anything that made the site beautiful. Say it plainly to clients: the export rescues the <em>words and pictures</em>, not the <em>design</em>.</p>
+      <p>Hand the XML to the AI assistant: <em>“convert every post and page to Markdown with title, date, slug, and tags in frontmatter; download and relink every image; flag anything that didn't survive.”</em> It writes the conversion script, runs it, and produces the damage report. The damage report is the real deliverable — it's your rebuild checklist.</p>
+      <div class="callout">
+        <p><strong>Media:</strong> Squarespace serves scaled images; get the originals. Download full-resolution originals from the media library <strong>before</strong> you cancel anything (see Step 8).</p>
+      </div>
+
+      <h3 id="step-3">Step 3 — Rebuild the design faithfully: spend the care budget here</h3>
+      <p>This is where the hours go, and it's honest work: template → Next.js components. The design-system spec from Part 1 drives it — the assistant generates Tailwind styles matching the extracted type scale, palette, and spacing, and you verify against the live site side by side.</p>
+      <p>Rebuild order: layout shell (header/footer/nav) → homepage hero → gallery components → inner pages → blog templates. Every component gets reviewed on a Vercel preview URL against the original. Pixel-careful isn't a slogan here; it's the acceptance criterion.</p>
+      <p>The redesign question applies, same as the WordPress article: faithful first is the safe default for established businesses. A redesign is a separate project with its own approval cycle — don't smuggle it into the migration.</p>
+
+      <h3 id="step-4">Step 4 — Galleries and portfolios: the crown jewels, upgraded</h3>
+      <p>Galleries become data + component: each image with caption and alt text in frontmatter, rendered by a gallery component using <code>next/image</code> (proper sizing, WebP/AVIF, blur placeholders). Two upgrades fall out for free:</p>
+      <ul>
+        <li><strong>Real alt text.</strong> Have the assistant write descriptive alt text for every portfolio image. For photographers, this is genuinely valuable SEO — image search is a traffic source, and Squarespace galleries were alt-text deserts.</li>
+        <li><strong>Performance.</strong> Properly sized responsive images with blur-up placeholders load visibly faster than the template's one-size-fits-all output.</li>
+      </ul>
+
+      <h3 id="step-5">Step 5 — Backends: forms move, commerce gets a decision</h3>
+      <ul>
+        <li><strong>Squarespace Forms</strong> → a React form + Next.js Server Action, sending via Resend or Formspree. Same pattern as the other articles; test every form on staging.</li>
+        <li><strong>Scheduling (Acuity)</strong> → keep it. Embed the Acuity scheduler on the new site exactly as before. Don't migrate what isn't broken.</li>
+        <li><strong>Commerce</strong> → be honest: this is a project, not a step. Options: keep checkout on Squarespace (subdomain or embedded), or replatform to Shopify/Stripe with a headless storefront. Don't pitch a commerce migration as a weekend job — scope it separately.</li>
+      </ul>
+
+      <h3 id="step-6">Step 6 — URLs: retain verbatim</h3>
+      <p>Squarespace URLs are already clean: <code>/blog/{slug}</code> for posts, <code>/{slug}</code> for pages. Keep them exactly — the series rule stands: the best redirect is the one you never need. Map anything that does change in <code>next.config.ts</code> redirects, and have the assistant generate the array from your inventory CSV:</p>
+      <div class="codeblock">
+        <div class="codeblock-header"><span class="lang">TypeScript</span><span>next.config.ts</span><button class="copy-btn" type="button">Copy</button></div>
+<pre><code><span class="tok-k">const</span> nextConfig = {
+  <span class="tok-k">async</span> <span class="tok-f">redirects</span>() {
+    <span class="tok-k">return</span> [
+      { source: <span class="tok-s">"/old-page"</span>, destination: <span class="tok-s">"/new-page"</span>, permanent: <span class="tok-k">true</span> },
+    ];
+  },
+};</code></pre>
+      </div>
+
+      <h3 id="step-7">Step 7 — Deploy: GitHub + Vercel, branches included</h3>
+      <p>Push to GitHub, import into Vercel (it auto-detects Next.js), point DNS. Set up the same development → staging → production branch ladder as the rest of the series:</p>
+      <div class="table-wrap">
+      <table>
+        <thead><tr><th>Branch</th><th>Environment</th><th>Deploys to</th></tr></thead>
+        <tbody>
+          <tr><td><code>main</code></td><td><strong>Production</strong></td><td>Your domain, via Vercel production deployment</td></tr>
+          <tr><td><code>staging</code></td><td><strong>Staging</strong></td><td>A staging URL for visual review against the original</td></tr>
+          <tr><td>Feature branches</td><td><strong>Development</strong></td><td>Automatic Vercel preview URLs — one per pull request</td></tr>
+        </tbody>
+      </table>
+      </div>
+      <p>Protect <code>main</code> and <code>staging</code> (GitHub → Settings → Branches → branch protection rule): require a pull request, require an approval, require the Vercel build to pass. For this audience, staging is where the client reviews the <em>look</em> — side by side with the original — before anything ships.</p>
+
+      <h3 id="step-8">Step 8 — Cutover + the pitfalls list</h3>
+      <ol>
+        <li><strong>Content freeze</strong> on Squarespace; final export; merge to <code>staging</code>.</li>
+        <li><strong>Client reviews the full staging site against the original</strong> — page by page. This is the sign-off gate.</li>
+        <li><strong>Merge <code>staging</code> → <code>main</code></strong>; switch DNS (copy <em>all</em> records first — Squarespace often hosts the domain and its DNS; MX records for Google Workspace must survive).</li>
+        <li><strong>Search Console:</strong> submit the new sitemap, request indexing on key pages.</li>
+        <li><strong>Watch 404s for two weeks</strong> and add redirects for anything missed.</li>
+        <li><strong>Then</strong> cancel the Squarespace subscription — after DNS has moved, after originals are downloaded, after 30 days of parallel calm.</li>
+      </ol>
+      <p><strong>Pitfalls:</strong></p>
+      <ul>
+        <li><strong>Image originals.</strong> Download full-res <em>before</em> canceling. After cancellation, they're gone.</li>
+        <li><strong>Font licensing.</strong> Squarespace bundles Google Fonts (open, fine) and sometimes Adobe Fonts — check the license before self-hosting.</li>
+        <li><strong>Summary blocks and carousels</strong> don't export; they're rebuild items, not migration items. Budget them.</li>
+        <li><strong>The domain.</strong> If Squarespace is the registrar, transfer it or keep DNS there — decide deliberately, not by accident.</li>
+        <li><strong>Email, as always.</strong> MX records. Every time.</li>
+      </ul>
+    </section>
+
+    <hr class="ornament">
+
+    <section id="part-3">
+      <h2><span class="part-num">Part 3</span>The AI assistant as your CMS</h2>
+      <p class="dropcap">The daily workflow for a visual business:</p>
+      <div class="dialogue">
+        <div class="turn you">
+          <span class="who">Owner</span>
+          <p>“Swap the homepage hero gallery for the fall collection shots.”</p>
+        </div>
+        <div class="turn ai">
+          <span class="who">Assistant</span>
+          <p>Updates the gallery data file on a branch, optimizes the new images, writes alt text, opens a preview.</p>
+        </div>
+        <div class="turn you">
+          <span class="who">Owner</span>
+          <p>Checks the preview. “The third one — swap it for the barn shot.”</p>
+        </div>
+        <div class="turn ai">
+          <span class="who">Assistant</span>
+          <p>Revises; preview rebuilds in ~30 seconds.</p>
+        </div>
+        <div class="turn you">
+          <span class="who">You</span>
+          <p>Merge → staging → production.</p>
+        </div>
+      </div>
+      <p>No template editor. No “that layout isn't available on your plan.”</p>
+
+      <h3 id="prompt-library">The Squarespace prompt library — steal these</h3>
+      <ul>
+        <li><em>“Swap the hero gallery for these new images [attached]. Optimize, write alt text, open a PR against staging.”</em></li>
+        <li><em>“Update the menu page with the new seasonal items: [paste]. Keep the formatting consistent.”</em></li>
+        <li><em>“Add this testimonial to the homepage: [quote, name].”</em></li>
+        <li><em>“Change our hours everywhere they appear to [new hours].”</em></li>
+        <li><em>“Audit every gallery for missing alt text and write it — descriptive, photographer-grade.”</em></li>
+        <li><em>“Find every image over 400KB site-wide, convert to WebP, report bytes saved.”</em></li>
+        <li><em>“Draft a blog post announcing [event] in our voice, with a meta description under 160 chars.”</em></li>
+        <li><em>“Check all external links; flag the dead ones.”</em></li>
+        <li><em>“Regenerate the sitemap and confirm every URL returns 200 on staging.”</em></li>
+      </ul>
+    </section>
+
+    <hr class="ornament">
+
+    <section id="part-4">
+      <h2><span class="part-num">Part 4</span>Honest tradeoffs</h2>
+      <p>This stack isn't for everyone. Be straight with clients about the limits:</p>
+      <ul>
+        <li><strong>Squarespace is genuinely good at “beautiful with zero effort.”</strong> The AI-chat workflow replaces <em>content edits</em> beautifully. It does not replace the specific joy of a non-technical person dragging a gallery block into place at midnight. If the client lives for that, say so.</li>
+        <li><strong>Don't undersell the design labor.</strong> A faithful rebuild is real work — design-system extraction, component building, side-by-side review. Quote it honestly; the cage-free ongoing story is where the value compounds.</li>
+        <li><strong>Commerce and Scheduling are edge cases.</strong> Acuity embeds fine. Real commerce is a separate scoping conversation (see Step 5).</li>
+        <li><strong>Someone still approves merges.</strong> The preview-approval loop needs a human who clicks. Set that expectation on day one.</li>
+      </ul>
+    </section>
+
+    <hr class="ornament">
+
+    <section id="part-5">
+      <h2><span class="part-num">Part 5</span>Pitching it: keep the beauty, lose the cage</h2>
+      <ul>
+        <li><strong>“Same look. None of the limits.”</strong> The site they love, rebuilt faithfully — and now the layout they always wanted is a conversation away instead of a template limitation.</li>
+        <li><strong>“Stop paying rent on your own website.”</strong> The plan tier, the feature paywalls, the renewal — gone. Hosting drops to Vercel's free tier; the site becomes an asset they own in their GitHub repo.</li>
+        <li><strong>“Your content finally belongs to you.”</strong> Markdown files, full history, downloadable everything. No export anxiety ever again.</li>
+      </ul>
+      <p><strong>Handling the two objections you'll hear:</strong></p>
+      <p><strong>“What if the AI gets it wrong?”</strong> Nothing publishes without their preview approval — safer than Squarespace, where anyone with contributor access edits the live site directly.</p>
+      <div class="callout">
+        <p><strong>“What if you disappear?”</strong> Everything is in their GitHub account — code, content, full history. The content is Markdown, the hosting is Vercel, the “CMS” is a documented conversation workflow. No license keys, no proprietary lock-in. Any developer can take over.</p>
+      </div>
+    </section>
+
+    <hr class="ornament">
+
+    <section id="start">
+      <h2><span class="part-num">Coda</span>Getting started this weekend</h2>
+      <ol class="checklist">
+        <li><code>npx create-next-app@latest</code> — scaffold it.</li>
+        <li>Run the Squarespace export (Settings → Advanced → Import/Export); hand the XML to the assistant: <em>“convert it and report the damage.”</em></li>
+        <li>Have the assistant extract the design system from the live site; rebuild the homepage hero.</li>
+        <li>Push to GitHub, import into Vercel, compare the preview against the original side by side.</li>
+      </ol>
+      <p>The future CMS isn't a dashboard. It's a conversation — with git as the memory and the edge as the server.</p>
+    </section>
+
+    <footer class="colophon">
+      <em>Fifth in the Web 4.0 Contrivance Engineering series. Built the way it describes: written with an AI assistant, versioned on GitHub, deployed on Vercel.</em>
+      <p>To publish this page with GitHub Pages: place this file as <code>index.html</code> at the root of a repository (or in <code>/docs</code>), then enable Pages under the repo's Settings → Pages. No build step required — it's a single self-contained file.</p>
+    </footer>
+  </main>
+</div>
+<script>
+(function(){
+  // Copy buttons
+  document.querySelectorAll('.copy-btn').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      var code = btn.closest('.codeblock').querySelector('pre code').innerText;
+      navigator.clipboard.writeText(code).then(function(){
+        btn.textContent = 'Copied';
+        btn.classList.add('copied');
+        setTimeout(function(){ btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 1600);
+      });
+    });
+  });
+
+  // Active TOC highlighting
+  var links = Array.prototype.slice.call(document.querySelectorAll('.toc a'));
+  var byId = {};
+  links.forEach(function(a){
+    var id = a.getAttribute('href').slice(1);
+    (byId[id] = byId[id] || []).push(a);
+  });
+  var sections = Object.keys(byId).map(function(id){ return document.getElementById(id); })
+    .filter(Boolean);
+  if ('IntersectionObserver' in window && sections.length){
+    var obs = new IntersectionObserver(function(entries){
+      entries.forEach(function(e){
+        if (e.isIntersecting){
+          links.forEach(function(a){ a.classList.remove('active'); });
+          (byId[e.target.id] || []).forEach(function(a){ a.classList.add('active'); });
+        }
+      });
+    }, { rootMargin: '-20% 0px -70% 0px' });
+    sections.forEach(function(s){ obs.observe(s); });
+  }
+})();
+</script>
+</body>
+</html>

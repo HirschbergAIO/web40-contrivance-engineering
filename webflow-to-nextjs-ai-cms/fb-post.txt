@@ -1,0 +1,7 @@
+Hot take for the Webflow crowd: Webflow is the best website builder ever made — and you've already outgrown it. Per-seat pricing, CMS item limits, hosting costs that scale with your traffic.
+
+New developer guide (article 6 in my Web 4.0 Contrivance Engineering series): the graduation plan. Webflow's code export maps almost 1:1 to Next.js components, CMS Collections become Markdown, and an AI assistant takes over content ops. Same mental model, no ceiling.
+
+Read it here: https://hirschbergaio.github.io/web40-contrivance-engineering/webflow-to-nextjs-ai-cms/
+
+#webdev #nextjs #webflow

@@ -1,0 +1,715 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Goodbye App Stack: Unbundle Shopify to Headless Next.js on Vercel, with an AI Assistant as Your CMS</title>
+<meta name="description" content="A field guide for web developers: unbundle a Shopify store to a headless Next.js storefront on Vercel, with an AI assistant as your merchandising CMS.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#FBF9F5;
+    --paper-deep:#F4F0E8;
+    --ink:#1C1917;
+    --muted:#78716C;
+    --faint:#A8A29E;
+    --line:#E7E1D6;
+    --accent:#9A3412;
+    --accent-bright:#C2410C;
+    --accent-soft:#FBEFE4;
+    --code-bg:#F3EEE5;
+    --callout-bg:#FDf8EF;
+    --radius:12px;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    margin:0;
+    background:var(--paper);
+    color:var(--ink);
+    font-family:"Source Serif 4",Georgia,"Times New Roman",serif;
+    font-size:1.125rem;
+    line-height:1.8;
+    -webkit-font-smoothing:antialiased;
+  }
+  ::selection{background:#F5D9BC}
+
+  .page{
+    display:grid;
+    grid-template-columns:230px minmax(0,44rem);
+    gap:4.5rem;
+    max-width:72rem;
+    margin:0 auto;
+    padding:4.5rem 2rem 6rem;
+    justify-content:center;
+  }
+
+  /* ---------- Table of contents ---------- */
+  .toc{
+    position:sticky;
+    top:2.5rem;
+    align-self:start;
+    font-family:Inter,system-ui,sans-serif;
+    font-size:.82rem;
+    line-height:1.5;
+    max-height:calc(100vh - 5rem);
+    overflow:auto;
+    padding-right:.5rem;
+  }
+  .toc .toc-label{
+    text-transform:uppercase;
+    letter-spacing:.14em;
+    font-size:.68rem;
+    font-weight:600;
+    color:var(--faint);
+    margin-bottom:.9rem;
+  }
+  .toc ol{list-style:none;margin:0;padding:0}
+  .toc li{margin:0 0 .15rem}
+  .toc a{
+    display:block;
+    color:var(--muted);
+    text-decoration:none;
+    padding:.28rem .6rem;
+    border-left:2px solid var(--line);
+    transition:color .15s,border-color .15s;
+  }
+  .toc a:hover{color:var(--ink)}
+  .toc a.active{color:var(--accent);border-left-color:var(--accent);font-weight:500}
+  .toc ol ol a{padding-left:1.3rem;font-size:.76rem}
+
+  /* ---------- Article ---------- */
+  .article{min-width:0}
+  .kicker{
+    font-family:Inter,system-ui,sans-serif;
+    text-transform:uppercase;
+    letter-spacing:.18em;
+    font-size:.72rem;
+    font-weight:600;
+    color:var(--accent);
+    margin:0 0 1.4rem;
+  }
+  h1{
+    font-family:Fraunces,Georgia,serif;
+    font-weight:600;
+    font-size:clamp(2.4rem,5vw,3.4rem);
+    line-height:1.08;
+    letter-spacing:-0.015em;
+    margin:0 0 1.4rem;
+    text-wrap:balance;
+  }
+  .lede{
+    font-size:1.35rem;
+    line-height:1.65;
+    color:#44403C;
+    margin:0 0 2rem;
+    text-wrap:pretty;
+  }
+  .byline{
+    display:flex;
+    flex-wrap:wrap;
+    gap:.4rem 1.2rem;
+    align-items:center;
+    font-family:Inter,system-ui,sans-serif;
+    font-size:.82rem;
+    color:var(--muted);
+    padding:1.1rem 0;
+    border-top:1px solid var(--line);
+    border-bottom:1px solid var(--line);
+    margin-bottom:3rem;
+  }
+  .byline strong{color:var(--ink);font-weight:600}
+  .byline .dot{color:var(--faint)}
+
+  section{margin-bottom:3.5rem;scroll-margin-top:2rem}
+  h2{
+    font-family:Fraunces,Georgia,serif;
+    font-weight:600;
+    font-size:2rem;
+    line-height:1.25;
+    letter-spacing:-0.01em;
+    margin:0 0 1.2rem;
+    padding-top:1rem;
+    scroll-margin-top:1.5rem;
+    counter-increment:part;
+  }
+  h2 .part-num{
+    display:block;
+    font-family:Inter,system-ui,sans-serif;
+    font-size:.72rem;
+    font-weight:600;
+    text-transform:uppercase;
+    letter-spacing:.18em;
+    color:var(--accent);
+    margin-bottom:.5rem;
+  }
+  h3{
+    font-family:Fraunces,Georgia,serif;
+    font-weight:600;
+    font-size:1.35rem;
+    line-height:1.35;
+    margin:2.4rem 0 .8rem;
+    scroll-margin-top:1.5rem;
+  }
+  p{margin:0 0 1.3rem;text-wrap:pretty}
+  .dropcap::first-letter{
+    font-family:Fraunces,Georgia,serif;
+    font-weight:700;
+    font-size:3.6em;
+    line-height:.85;
+    float:left;
+    padding:.06em .12em 0 0;
+    color:var(--accent);
+  }
+  a{color:var(--accent-bright);text-decoration-thickness:1px;text-underline-offset:3px}
+  a:hover{color:var(--accent)}
+  strong{font-weight:600}
+  ul,ol{margin:0 0 1.3rem;padding-left:1.4rem}
+  li{margin-bottom:.45rem}
+  li::marker{color:var(--accent)}
+
+  /* diagram */
+  .diagram{
+    font-family:"JetBrains Mono",ui-monospace,Menlo,monospace;
+    font-size:.8rem;
+    line-height:1.7;
+    background:var(--ink);
+    color:#EDE6D8;
+    border-radius:var(--radius);
+    padding:1.4rem 1.6rem;
+    overflow-x:auto;
+    margin:1.8rem 0;
+    white-space:pre;
+  }
+  .diagram .hl{color:#F0B46A}
+
+  /* code */
+  code{
+    font-family:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+    font-size:.82em;
+    background:var(--code-bg);
+    border:1px solid var(--line);
+    border-radius:6px;
+    padding:.12em .42em;
+    white-space:nowrap;
+  }
+  .codeblock{
+    margin:1.8rem 0;
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    overflow:hidden;
+    background:#FFFDF9;
+  }
+  .codeblock-header{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:1rem;
+    padding:.55rem 1rem;
+    background:var(--paper-deep);
+    border-bottom:1px solid var(--line);
+    font-family:Inter,system-ui,sans-serif;
+    font-size:.74rem;
+    color:var(--muted);
+  }
+  .codeblock-header .lang{
+    font-weight:600;
+    text-transform:uppercase;
+    letter-spacing:.1em;
+    font-size:.66rem;
+  }
+  .copy-btn{
+    font-family:Inter,system-ui,sans-serif;
+    font-size:.72rem;
+    font-weight:500;
+    color:var(--muted);
+    background:transparent;
+    border:1px solid var(--line);
+    border-radius:8px;
+    padding:.28rem .7rem;
+    cursor:pointer;
+    transition:all .15s;
+  }
+  .copy-btn:hover{color:var(--ink);border-color:var(--faint)}
+  .copy-btn.copied{color:var(--accent);border-color:var(--accent)}
+  .codeblock pre{
+    margin:0;
+    padding:1.2rem 1.4rem;
+    overflow-x:auto;
+    font-family:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+    font-size:.83rem;
+    line-height:1.7;
+  }
+  .codeblock pre code{
+    background:none;border:none;padding:0;white-space:pre;font-size:1em;
+  }
+  /* tiny syntax tint */
+  .tok-k{color:#9A3412;font-weight:500}
+  .tok-s{color:#3F6212}
+  .tok-c{color:#A8A29E;font-style:italic}
+  .tok-f{color:#1D4ED8}
+
+  /* tables */
+  .table-wrap{overflow-x:auto;margin:1.8rem 0;border:1px solid var(--line);border-radius:var(--radius)}
+  table{
+    width:100%;
+    border-collapse:collapse;
+    font-family:Inter,system-ui,sans-serif;
+    font-size:.86rem;
+    line-height:1.55;
+    background:#FFFDF9;
+  }
+  th{
+    text-align:left;
+    font-size:.7rem;
+    text-transform:uppercase;
+    letter-spacing:.1em;
+    color:var(--muted);
+    font-weight:600;
+    padding:.9rem 1.1rem;
+    background:var(--paper-deep);
+    border-bottom:1px solid var(--line);
+    white-space:nowrap;
+  }
+  td{padding:.85rem 1.1rem;border-bottom:1px solid var(--line);vertical-align:top}
+  tr:last-child td{border-bottom:none}
+  td code{white-space:normal}
+
+  /* callout */
+  .callout{
+    background:var(--callout-bg);
+    border:1px solid #EBD9BE;
+    border-left:4px solid var(--accent-bright);
+    border-radius:0 var(--radius) var(--radius) 0;
+    padding:1.2rem 1.5rem;
+    margin:1.8rem 0;
+    font-size:1.02rem;
+  }
+  .callout p{margin:0}
+  .callout strong{color:var(--accent)}
+
+  /* dialogue */
+  .dialogue{margin:1.8rem 0;display:flex;flex-direction:column;gap:.9rem}
+  .turn{
+    border-radius:var(--radius);
+    padding:1rem 1.3rem;
+    font-size:1.02rem;
+    line-height:1.7;
+  }
+  .turn p{margin:0}
+  .turn .who{
+    display:block;
+    font-family:Inter,system-ui,sans-serif;
+    font-size:.68rem;
+    font-weight:600;
+    text-transform:uppercase;
+    letter-spacing:.14em;
+    margin-bottom:.4rem;
+  }
+  .turn.you{background:#FFFDF9;border:1px solid var(--line)}
+  .turn.you .who{color:var(--muted)}
+  .turn.ai{background:var(--accent-soft);border:1px solid #F0DCC4}
+  .turn.ai .who{color:var(--accent)}
+
+  /* repo tree */
+  .tree{
+    font-family:"JetBrains Mono",ui-monospace,Menlo,monospace;
+    font-size:.83rem;
+    line-height:1.75;
+    background:#FFFDF9;
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    padding:1.3rem 1.5rem;
+    margin:1.8rem 0;
+    overflow-x:auto;
+    white-space:pre;
+  }
+  .tree .cm{color:var(--faint)}
+
+  hr.ornament{
+    border:none;
+    text-align:center;
+    margin:3.5rem 0;
+    color:var(--faint);
+    font-size:1.1rem;
+    letter-spacing:.6em;
+  }
+  hr.ornament::after{content:"⁂"}
+
+  .checklist{
+    list-style:none;
+    padding:0;
+    margin:1.8rem 0;
+    counter-reset:step;
+  }
+  .checklist li{
+    position:relative;
+    padding:1rem 1.2rem 1rem 3.6rem;
+    background:#FFFDF9;
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    margin-bottom:.8rem;
+    counter-increment:step;
+  }
+  .checklist li::before{
+    content:counter(step);
+    position:absolute;
+    left:1.2rem;top:1rem;
+    width:1.7rem;height:1.7rem;
+    border-radius:50%;
+    background:var(--accent);
+    color:#fff;
+    font-family:Inter,system-ui,sans-serif;
+    font-size:.8rem;font-weight:600;
+    display:flex;align-items:center;justify-content:center;
+  }
+  .checklist li::marker{content:""}
+  .checklist code{white-space:normal}
+
+  footer.colophon{
+    margin-top:4rem;
+    padding-top:2rem;
+    border-top:1px solid var(--line);
+    font-family:Inter,system-ui,sans-serif;
+    font-size:.82rem;
+    color:var(--muted);
+    line-height:1.7;
+  }
+  footer.colophon em{
+    font-family:"Source Serif 4",Georgia,serif;
+    font-size:1rem;
+    color:var(--ink);
+    display:block;
+    margin-bottom:1rem;
+  }
+
+  @media (max-width:60rem){
+    .page{grid-template-columns:1fr;gap:0;padding-top:3rem}
+    .toc{
+      position:static;
+      max-height:none;
+      background:#FFFDF9;
+      border:1px solid var(--line);
+      border-radius:var(--radius);
+      padding:1.2rem 1.4rem;
+      margin-bottom:2.5rem;
+    }
+    .toc ol ol{display:none}
+  }
+  @media print{
+    .toc,.copy-btn{display:none}
+    .page{display:block;padding:0}
+    body{font-size:11pt;background:#fff}
+    section{break-inside:avoid}
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <aside class="toc" aria-label="Table of contents">
+    <div class="toc-label">On this page</div>
+    <ol>
+      <li><a href="#the-frame">The frame</a></li>
+      <li><a href="#part-1">The architecture</a></li>
+      <li><a href="#part-2">Migration playbook</a>
+        <ol>
+          <li><a href="#step-1">1 · Audit the store</a></li>
+          <li><a href="#step-2">2 · Export the catalog</a></li>
+          <li><a href="#step-3">3 · Rebuild the storefront</a></li>
+          <li><a href="#step-4">4 · Apps: keep, replace, kill</a></li>
+          <li><a href="#step-5">5 · The checkout decision</a></li>
+          <li><a href="#step-6">6 · URLs</a></li>
+          <li><a href="#step-7">7 · Deploy</a></li>
+          <li><a href="#step-8">8 · Cutover</a></li>
+        </ol>
+      </li>
+      <li><a href="#part-3">The AI assistant as merchandiser</a>
+        <ol><li><a href="#prompt-library">Prompt library</a></li></ol>
+      </li>
+      <li><a href="#part-4">Honest tradeoffs</a></li>
+      <li><a href="#part-5">Pitching the unbundling</a></li>
+      <li><a href="#start">Start this weekend</a></li>
+    </ol>
+  </aside>
+
+  <main class="article">
+    <header>
+      <p class="kicker">Web 4.0 · Contrivance Engineering — Article 3</p>
+      <h1>Goodbye App Stack: unbundle Shopify to headless Next.js on Vercel, with an AI assistant as your CMS</h1>
+      <p class="lede">The average Shopify store isn't really a website anymore — it's a subscription stack. A dozen apps at $10–50 a month each, every one injecting its own scripts and its own dashboard, while the owner can't change a homepage banner without a tutorial. Time to unbundle it.</p>
+      <div class="byline">
+        <span><strong>Andrew Good</strong></span><span class="dot">·</span>
+        <span>October 3, 2026</span><span class="dot">·</span>
+        <span>11 min read</span>
+      </div>
+    </header>
+
+    <section id="the-frame">
+      <h2><span class="part-num">The frame</span>Unbundle the transaction machine</h2>
+      <p class="dropcap">The series thesis, restated for commerce: <strong>contrivance engineering</strong> is the discipline of replacing an entire software category with a smaller, cleverer mechanism. A CMS was only ever two jobs — <strong>store content with structure</strong> (git does it better than anything) and <strong>give non-technical people a way to change it</strong> (language beats dashboards). The loop was always <em>intent → change → review → publish</em>; the contrivance rebuilds it from four cheap parts: a chat, a branch, a preview URL, and a merge.</p>
+      <p>A Shopify store welds two machines together: the <strong>merchandising machine</strong> (homepage, collections, product copy, banners, landing pages — all content) and the <strong>transaction machine</strong> (cart, checkout, payments, fraud analysis, order management — all money). The merchandising machine is a CMS problem wearing a commerce costume, and it surrenders to the contrivance completely. The transaction machine is where real money changes hands, and you don't rebuild that on a weekend — you keep it on Shopify's rails via the Storefront API.</p>
+      <p>So the honest path has two phases. <strong>Phase 1:</strong> headless Shopify — new Next.js storefront, same checkout, same payments, same fraud analysis, same PCI scope (which is to say: Shopify's, not yours). <strong>Phase 2:</strong> a full replatform later, if ever, once the new storefront has earned its keep. This article is Phase 1. Anyone who tells you to replatform a working checkout in one move is selling you something.</p>
+    </section>
+
+    <hr class="ornament">
+
+    <section id="part-1">
+      <h2><span class="part-num">Part 1</span>The architecture</h2>
+      <p>The four familiar pieces, plus one guest:</p>
+      <ul>
+        <li><strong>Next.js</strong> renders the storefront — product pages, collections, landing pages, blog</li>
+        <li><strong>GitHub</strong> is the database for everything that isn't transactional: page copy, banners, product descriptions, merchandising content, all versioned</li>
+        <li><strong>Vercel</strong> hosts the storefront, with a preview deployment for every change</li>
+        <li><strong>An AI assistant</strong> is the CMS — merchandising happens in conversation</li>
+        <li><strong>Shopify</strong> remains the commerce backend, reached over the Storefront API: catalog, variants, inventory, cart, and checkout</li>
+      </ul>
+      <div class="diagram">Owner  <span class="hl">→</span>  (chat)  <span class="hl">→</span>  AI assistant  <span class="hl">→</span>  edits content in GitHub repo
+                                              <span class="hl">↓</span>
+                                    Vercel builds a preview URL
+                                              <span class="hl">↓</span>
+                              Owner reviews <span class="hl">→</span> merge <span class="hl">→</span> production deploys
+
+Storefront  <span class="hl">→</span>  Storefront API  <span class="hl">→</span>  Shopify (products, inventory, cart, checkout)</div>
+      <p><strong>Product data</strong> stays in Shopify — it's the system of record for SKUs, variants, prices, and inventory. The Next.js frontend fetches it at build or request time. <strong>Merchandising copy</strong> — the words around the products — lives in the repo as Markdown/MDX, where the assistant can rewrite forty product descriptions in one sitting.</p>
+      <p>A minimal Shopify client — <code>lib/shopify.ts</code>:</p>
+      <div class="codeblock">
+        <div class="codeblock-header"><span class="lang">TypeScript</span><span>lib/shopify.ts</span><button class="copy-btn" type="button">Copy</button></div>
+<pre><code><span class="tok-c">// Pin the API version to the latest stable release</span>
+<span class="tok-k">const</span> SHOP = process.env.<span class="tok-f">SHOPIFY_STORE_DOMAIN</span>!;      <span class="tok-c">// your-store.myshopify.com</span>
+<span class="tok-k">const</span> TOKEN = process.env.<span class="tok-f">SHOPIFY_STOREFRONT_TOKEN</span>!;  <span class="tok-c">// storefront access token</span>
+
+<span class="tok-k">export async function</span> <span class="tok-f">shopify</span>(query: string, variables = {}) {
+  <span class="tok-k">const</span> res = <span class="tok-k">await</span> <span class="tok-f">fetch</span>(<span class="tok-s">`https://${SHOP}/api/2026-07/graphql.json`</span>, {
+    method: <span class="tok-s">"POST"</span>,
+    headers: {
+      <span class="tok-s">"Content-Type"</span>: <span class="tok-s">"application/json"</span>,
+      <span class="tok-s">"X-Shopify-Storefront-Access-Token"</span>: TOKEN,
+    },
+    body: JSON.<span class="tok-f">stringify</span>({ query, variables }),
+    next: { revalidate: <span class="tok-s">60</span> },
+  });
+  <span class="tok-k">const</span> { data } = <span class="tok-k">await</span> res.<span class="tok-f">json</span>();
+  <span class="tok-k">return</span> data;
+}</code></pre>
+      </div>
+      <p>Product pages fetch live data; cart actions use the Storefront API's cart mutations, and checkout hands off to Shopify's own checkout via the returned <code>checkoutUrl</code> — the customer never notices the seam, and neither does your PCI scope.</p>
+
+      <h3>Why this beats the app stack for growing stores</h3>
+      <div class="table-wrap">
+      <table>
+        <thead><tr><th></th><th>Shopify theme + apps</th><th>Headless Next.js + Shopify backend</th></tr></thead>
+        <tbody>
+          <tr><td>Storefront speed</td><td>Theme + N app scripts, often 3–6s</td><td>&lt;1s, edge-rendered, no app bloat</td></tr>
+          <tr><td>App costs</td><td>$10–50/mo per app, stacking forever</td><td>Replace or drop most; keep only what earns</td></tr>
+          <tr><td>Merchandising</td><td>Theme customizer + app dashboards</td><td>A conversation; preview URL per change</td></tr>
+          <tr><td>Design freedom</td><td>Whatever the theme allows</td><td>Anything — it's your codebase</td></tr>
+          <tr><td>Checkout</td><td>Shopify (unchanged)</td><td>Shopify (unchanged)</td></tr>
+        </tbody>
+      </table>
+      </div>
+    </section>
+
+    <hr class="ornament">
+
+    <section id="part-2">
+      <h2><span class="part-num">Part 2</span>The migration playbook</h2>
+
+      <h3 id="step-1">Step 1 — Audit the store</h3>
+      <ol>
+        <li><strong>Catalog inventory</strong> — product count, variant depth, custom product types. A 40-SKU store and a 4,000-SKU store are different migrations.</li>
+        <li><strong>Theme customizations</strong> — list every customized section and template. Screenshot the homepage, product page, and collection page; these become your component specs.</li>
+        <li><strong>App inventory</strong> — for each installed app, write down what it <em>does</em>, not what it's called. “Loox” → “photo reviews”. “Rebuy” → “post-purchase upsells”. “Privy” → “email popups”. Count the monthly total — you'll want that number for Part&nbsp;5.</li>
+        <li><strong>URL inventory</strong> — Shopify's patterns are predictable: <code>/products/{handle}</code>, <code>/collections/{handle}</code>, <code>/pages/{handle}</code>, <code>/blogs/{blog}/{article}</code>. Export them; you'll retain them verbatim in Step&nbsp;6.</li>
+        <li><strong>Traffic inventory</strong> — top 20 product and collection pages. Those get rebuilt first and tested hardest.</li>
+      </ol>
+
+      <h3 id="step-2">Step 2 — Export the catalog and content</h3>
+      <p>Shopify admin → <strong>Products → Export</strong> gives you the full catalog as CSV: handles, titles, variants, SKUs, prices, inventory, image URLs. Blog posts and pages export similarly. Hand the CSV to the assistant: <em>“Convert this catalog into structured product content files — one per product, handle as filename, description converted to Markdown, variants and SKUs in frontmatter.”</em> It writes and runs the conversion script.</p>
+      <p><strong>Media:</strong> product images come down with the export URLs. Move them into the repo — or object storage for large catalogs — and let <code>next/image</code> serve them.</p>
+
+      <h3 id="step-3">Step 3 — Rebuild the storefront: theme sections become components</h3>
+      <p>Map the theme to Next.js the way the WordPress article mapped templates to routes: theme sections (hero, featured collection, testimonials) become React components; product and collection templates become dynamic routes (<code>app/products/[handle]/page.tsx</code>, <code>app/collections/[handle]/page.tsx</code>) fed by the Storefront API.</p>
+      <p>Same fork as ever: <strong>faithful rebuild</strong> (same design, zero customer disruption — hand the assistant the theme CSS or screenshots for Tailwind equivalents) or <strong>redesign</strong> (cheapest moment you'll ever get, since the frontend is being rebuilt anyway). The pragmatic rule holds: real revenue → faithful first, redesign second.</p>
+
+      <h3 id="step-4">Step 4 — Apps: keep, replace, or kill</h3>
+      <p>Go through the Step&nbsp;1 inventory and give every app one of three verdicts:</p>
+      <ul>
+        <li><strong>Keep</strong> — apps that are genuinely headless-friendly and earn their fee. Klaviyo (email/SMS) has real APIs and works fine headless. Anything whose value is in <em>data and deliverability</em>, not in <em>injecting storefront widgets</em>, usually stays.</li>
+        <li><strong>Replace</strong> — apps whose job was storefront widgets. Reviews → Judge.me (headless-capable) or a lightweight custom review block reading Shopify's own review data. Search → Algolia, or a custom search over the catalog you already fetch. Upsells → rebuild as native components at checkout-adjacent touchpoints you now control.</li>
+        <li><strong>Kill</strong> — the popup app, the announcement-bar app, the “trust badge” app. These were $15/mo patches for not owning your frontend. You own it now.</li>
+      </ul>
+      <p>Typical outcome: a 12-app stack becomes 3–4 kept integrations. That's the unbundling, in dollars.</p>
+
+      <h3 id="step-5">Step 5 — The checkout decision: don't get clever</h3>
+      <div class="callout">
+        <p><strong>Keep Shopify's checkout. Full stop, for Phase 1.</strong> This is where the money moves, and it comes with PCI compliance, fraud analysis, Shop Pay, and a decade of edge cases you do not want to rediscover. The headless flow is: cart mutations via the Storefront API → <code>cartCreate</code> returns a <code>checkoutUrl</code> → customer completes purchase on Shopify's checkout → webhooks tell your systems what happened.</p>
+      </div>
+      <p>Anyone proposing a custom checkout in Phase 1 is proposing risk you can't price. Revisit in Phase 2, if ever.</p>
+
+      <h3 id="step-6">Step 6 — URLs: retain the handles</h3>
+      <p>Shopify's URL patterns are clean and SEO-valuable. Keep them verbatim: <code>/products/{handle}</code> and <code>/collections/{handle}</code> become your Next.js dynamic routes with identical paths. The series rule stands — the best redirect is the one you never need. Redirect only what genuinely changes (custom <code>/pages/</code> slugs you rename, blog URL restructuring).</p>
+
+      <h3 id="step-7">Step 7 — Deploy: GitHub + Vercel, branches included</h3>
+      <p>Push to GitHub, import into Vercel, point DNS. Same development → staging → production ladder as the series standard: feature branches get preview URLs, <code>staging</code> is the merchandising review environment, <code>main</code> is production, branch protection on both. The assistant works on branches; nothing ships without a preview the owner has seen.</p>
+      <div class="callout">
+        <p><strong>Environment variables per environment:</strong> staging talks to a Shopify development store or a staging context — production talks to the live store. Never let a preview deployment write test orders into production analytics.</p>
+      </div>
+
+      <h3 id="step-8">Step 8 — Cutover + the pitfalls list</h3>
+      <ol>
+        <li><strong>Inventory freeze</strong> — agree a quiet window; no catalog edits during final sync.</li>
+        <li><strong>Final catalog export</strong> → rebuild → verify on staging, especially the top-20 pages and the full checkout path with a real test order.</li>
+        <li><strong>Switch DNS</strong>, submit sitemaps, watch 404s for two weeks.</li>
+      </ol>
+      <p>Pitfalls that sink store migrations:</p>
+      <ul>
+        <li><strong>Inventory sync during the freeze.</strong> If orders keep flowing on the old storefront mid-migration, reconcile before cutover — overselling during launch week is the nightmare scenario.</li>
+        <li><strong>Variant SKU mismatches.</strong> The CSV export is truth; if handles or SKUs drifted between apps, the new frontend shows the wrong variant. Reconcile SKUs in Step&nbsp;2, not Step&nbsp;8.</li>
+        <li><strong>App webhooks still firing.</strong> Uninstalled-but-not-really apps can keep capturing emails or firing discounts from the old theme. Audit webhooks in the Shopify admin post-cutover.</li>
+        <li><strong>Discount codes and gift cards.</strong> They live in Shopify and keep working — but <em>test</em> them on the headless checkout path. Test them twice.</li>
+        <li><strong>Email capture forms.</strong> Every Klaviyo/Privy form gets rebuilt and re-tested; a silent signup failure costs you the list growth you can't see.</li>
+        <li><strong>Email, as always.</strong> MX records before DNS changes. Every time.</li>
+      </ul>
+    </section>
+
+    <hr class="ornament">
+
+    <section id="part-3">
+      <h2><span class="part-num">Part 3</span>The AI assistant as your merchandiser</h2>
+      <p class="dropcap">This is where the contrivance pays for itself monthly. Merchandising used to mean logging into three dashboards. Now it's a conversation:</p>
+      <div class="dialogue">
+        <div class="turn you">
+          <span class="who">Owner</span>
+          <p>“Fall drop launches Friday. Write collection copy for the six new products, rewrite their descriptions in our voice — keep every spec and measurement intact — and draft the homepage banner.”</p>
+        </div>
+        <div class="turn ai">
+          <span class="who">Assistant</span>
+          <p>Drafts everything on a branch, commits — Vercel builds a preview of the actual storefront with the new copy in place.</p>
+        </div>
+        <div class="turn you">
+          <span class="who">Owner</span>
+          <p>Opens the preview. “Banner's too shouty, soften it.”</p>
+        </div>
+        <div class="turn ai">
+          <span class="who">Assistant</span>
+          <p>Revises — the preview rebuilds in about thirty seconds.</p>
+        </div>
+        <div class="turn you">
+          <span class="who">Owner</span>
+          <p>“Ship it.” → staging review → merge → production.</p>
+        </div>
+      </div>
+      <p>Bulk merchandising — the thing that used to take a VA a week — is now a paragraph.</p>
+
+      <h3 id="prompt-library">The merchandising prompt library — steal these</h3>
+      <ul>
+        <li><em>“Rewrite these 40 product descriptions in our voice. Keep every spec, measurement, and material intact; only the selling copy changes. Open a PR against staging.”</em></li>
+        <li><em>“Draft collection page copy for the fall drop: 120 words, our tone, mention the new colorways. Here's the product list: [paste].”</em></li>
+        <li><em>“Flag every product with missing alt text or missing meta descriptions, and draft both.”</em></li>
+        <li><em>“Write a landing page for the holiday sale — hero, three value props, FAQ. Match the tone of last year's page.”</em></li>
+        <li><em>“Audit pricing display consistency: find products where the compare-at price logic looks wrong.”</em></li>
+        <li><em>“Turn our five best reviews this month into homepage testimonial copy.”</em></li>
+        <li><em>“Generate SEO titles and descriptions for all products in the clearance collection.”</em></li>
+        <li><em>“Draft the abandoned-browse email sequence outline for the new collection — three emails, our voice.”</em></li>
+        <li><em>“Check every collection page for products that are out of stock and shouldn't be featured.”</em></li>
+      </ul>
+    </section>
+
+    <hr class="ornament">
+
+    <section id="part-4">
+      <h2><span class="part-num">Part 4</span>Honest tradeoffs: when headless isn't worth it</h2>
+      <ul>
+        <li><strong>Don't replatform a high-volume checkout lightly.</strong> If the store does serious revenue, Phase 1 keeps Shopify checkout for a reason. The day you touch checkout is the day you hire specialists, not the day you follow a blog post.</li>
+        <li><strong>App ecosystem depth is real.</strong> Some apps do genuinely hard things (subscriptions, B2B pricing, complex bundles). If three load-bearing apps have no headless path, price that rebuild honestly before committing.</li>
+        <li><strong>Tiny catalog, happy owner.</strong> A 12-product store whose owner loves the Shopify admin and changes copy twice a year? The ROI clock runs on merchandising velocity. Be honest about it.</li>
+        <li><strong>Shopify's own answer exists.</strong> Hydrogen (Shopify's Remix-based headless framework) is the official path. This guide picks Next.js + Vercel for the wider ecosystem, the edge network, and the AI-CMS workflow the series is built on — but Hydrogen is a legitimate choice, not a strawman.</li>
+        <li><strong>Someone still approves merges.</strong> Same as every article in the series: if nobody clicks “approve,” nothing ships.</li>
+      </ul>
+    </section>
+
+    <hr class="ornament">
+
+    <section id="part-5">
+      <h2><span class="part-num">Part 5</span>Pitching it: your store is a subscription stack</h2>
+      <p class="dropcap">Store owners feel the app-stack pain as a line item. Your pitch is arithmetic plus relief:</p>
+      <ul>
+        <li><strong>“Add up your apps.”</strong> Walk through the Step&nbsp;1 inventory together. Twelve apps at $10–50 a month is $2,000–7,000 a year for widgets — before the theme, before the plan. The unbundling usually kills half of it in week one.</li>
+        <li><strong>“You'll merchandise at the speed of conversation.”</strong> New drop Friday? It's a paragraph, a preview link, and an approval — not a VA, three dashboards, and a week.</li>
+        <li><strong>“Checkout doesn't change.”</strong> This is the sentence that closes the deal. Same Shopify checkout, same Shop Pay, same fraud protection. All the risk they imagined evaporates.</li>
+        <li><strong>“You own the storefront.”</strong> It's in <em>their</em> GitHub repo. No theme lock-in, no app lock-in for presentation, any developer can take over.</li>
+      </ul>
+      <p>The objections are the series standards: <em>“What if the AI gets it wrong?”</em> — nothing publishes without approval; safer than the theme customizer's Publish button. <em>“What if you disappear?”</em> — their repo, their content, Shopify still Shopify. And the cost story writes itself:</p>
+      <div class="table-wrap">
+      <table>
+        <thead><tr><th></th><th>Theme + app stack, per year</th><th>The unbundling</th></tr></thead>
+        <tbody>
+          <tr><td>Apps</td><td>$1,200–7,200 in subscriptions</td><td>Keep 3–4 that earn; kill the rest</td></tr>
+          <tr><td>Theme</td><td>$180–350 + customization fees</td><td>$0 — it's your codebase</td></tr>
+          <tr><td>Merchandising labor</td><td>VA hours or agency retainers</td><td>Conversation-speed, in-house</td></tr>
+          <tr><td>Checkout risk</td><td>—</td><td>Unchanged (still Shopify)</td></tr>
+        </tbody>
+      </table>
+      </div>
+    </section>
+
+    <hr class="ornament">
+
+    <section id="start">
+      <h2><span class="part-num">Coda</span>Getting started this weekend</h2>
+      <ol class="checklist">
+        <li><code>npx create-next-app@latest</code> — scaffold it, and create a Shopify headless channel for your Storefront API token.</li>
+        <li>Export one product via Products → Export, render it at <code>/products/[handle]</code>.</li>
+        <li>Push to GitHub, import into Vercel, open the live URL next to the real store.</li>
+        <li>Then hand your AI assistant the catalog CSV and say: <em>“build the rest of the storefront.”</em></li>
+      </ol>
+      <p>The future CMS isn't a dashboard. It's a conversation — with git as the memory and the edge as the server.</p>
+    </section>
+
+    <footer class="colophon">
+      <em>Third in the Web 4.0 Contrivance Engineering series. Built the way it describes: written with an AI assistant, versioned on GitHub, deployed on Vercel.</em>
+      <p>To publish this page with GitHub Pages: place this file as <code>index.html</code> at the root of a repository (or in <code>/docs</code>), then enable Pages under the repo's Settings → Pages. No build step required — it's a single self-contained file.</p>
+    </footer>
+  </main>
+</div>
+<script>
+(function(){
+  // Copy buttons
+  document.querySelectorAll('.copy-btn').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      var code = btn.closest('.codeblock').querySelector('pre code').innerText;
+      navigator.clipboard.writeText(code).then(function(){
+        btn.textContent = 'Copied';
+        btn.classList.add('copied');
+        setTimeout(function(){ btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 1600);
+      });
+    });
+  });
+
+  // Active TOC highlighting
+  var links = Array.prototype.slice.call(document.querySelectorAll('.toc a'));
+  var byId = {};
+  links.forEach(function(a){
+    var id = a.getAttribute('href').slice(1);
+    (byId[id] = byId[id] || []).push(a);
+  });
+  var sections = Object.keys(byId).map(function(id){ return document.getElementById(id); })
+    .filter(Boolean);
+  if ('IntersectionObserver' in window && sections.length){
+    var obs = new IntersectionObserver(function(entries){
+      entries.forEach(function(e){
+        if (e.isIntersecting){
+          links.forEach(function(a){ a.classList.remove('active'); });
+          (byId[e.target.id] || []).forEach(function(a){ a.classList.add('active'); });
+        }
+      });
+    }, { rootMargin: '-20% 0px -70% 0px' });
+    sections.forEach(function(s){ obs.observe(s); });
+  }
+})();
+</script>
+</body>
+</html>

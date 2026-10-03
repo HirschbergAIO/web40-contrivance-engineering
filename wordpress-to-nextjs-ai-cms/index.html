@@ -1,0 +1,895 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Goodbye WordPress — Next.js + GitHub + Vercel, with an AI Assistant as Your CMS</title>
+<meta name="description" content="A field guide for web developers: migrate WordPress sites to Next.js on GitHub + Vercel, and replace wp-admin with an AI assistant as your CMS.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#FBF9F5;
+    --paper-deep:#F4F0E8;
+    --ink:#1C1917;
+    --muted:#78716C;
+    --faint:#A8A29E;
+    --line:#E7E1D6;
+    --accent:#9A3412;
+    --accent-bright:#C2410C;
+    --accent-soft:#FBEFE4;
+    --code-bg:#F3EEE5;
+    --callout-bg:#FDf8EF;
+    --radius:12px;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    margin:0;
+    background:var(--paper);
+    color:var(--ink);
+    font-family:"Source Serif 4",Georgia,"Times New Roman",serif;
+    font-size:1.125rem;
+    line-height:1.8;
+    -webkit-font-smoothing:antialiased;
+  }
+  ::selection{background:#F5D9BC}
+
+  .page{
+    display:grid;
+    grid-template-columns:230px minmax(0,44rem);
+    gap:4.5rem;
+    max-width:72rem;
+    margin:0 auto;
+    padding:4.5rem 2rem 6rem;
+    justify-content:center;
+  }
+
+  /* ---------- Table of contents ---------- */
+  .toc{
+    position:sticky;
+    top:2.5rem;
+    align-self:start;
+    font-family:Inter,system-ui,sans-serif;
+    font-size:.82rem;
+    line-height:1.5;
+    max-height:calc(100vh - 5rem);
+    overflow:auto;
+    padding-right:.5rem;
+  }
+  .toc .toc-label{
+    text-transform:uppercase;
+    letter-spacing:.14em;
+    font-size:.68rem;
+    font-weight:600;
+    color:var(--faint);
+    margin-bottom:.9rem;
+  }
+  .toc ol{list-style:none;margin:0;padding:0}
+  .toc li{margin:0 0 .15rem}
+  .toc a{
+    display:block;
+    color:var(--muted);
+    text-decoration:none;
+    padding:.28rem .6rem;
+    border-left:2px solid var(--line);
+    transition:color .15s,border-color .15s;
+  }
+  .toc a:hover{color:var(--ink)}
+  .toc a.active{color:var(--accent);border-left-color:var(--accent);font-weight:500}
+  .toc ol ol a{padding-left:1.3rem;font-size:.76rem}
+
+  /* ---------- Article ---------- */
+  .article{min-width:0}
+  .kicker{
+    font-family:Inter,system-ui,sans-serif;
+    text-transform:uppercase;
+    letter-spacing:.18em;
+    font-size:.72rem;
+    font-weight:600;
+    color:var(--accent);
+    margin:0 0 1.4rem;
+  }
+  h1{
+    font-family:Fraunces,Georgia,serif;
+    font-weight:600;
+    font-size:clamp(2.4rem,5vw,3.4rem);
+    line-height:1.08;
+    letter-spacing:-0.015em;
+    margin:0 0 1.4rem;
+    text-wrap:balance;
+  }
+  .lede{
+    font-size:1.35rem;
+    line-height:1.65;
+    color:#44403C;
+    margin:0 0 2rem;
+    text-wrap:pretty;
+  }
+  .byline{
+    display:flex;
+    flex-wrap:wrap;
+    gap:.4rem 1.2rem;
+    align-items:center;
+    font-family:Inter,system-ui,sans-serif;
+    font-size:.82rem;
+    color:var(--muted);
+    padding:1.1rem 0;
+    border-top:1px solid var(--line);
+    border-bottom:1px solid var(--line);
+    margin-bottom:3rem;
+  }
+  .byline strong{color:var(--ink);font-weight:600}
+  .byline .dot{color:var(--faint)}
+
+  section{margin-bottom:3.5rem;scroll-margin-top:2rem}
+  h2{
+    font-family:Fraunces,Georgia,serif;
+    font-weight:600;
+    font-size:2rem;
+    line-height:1.25;
+    letter-spacing:-0.01em;
+    margin:0 0 1.2rem;
+    padding-top:1rem;
+    scroll-margin-top:1.5rem;
+    counter-increment:part;
+  }
+  h2 .part-num{
+    display:block;
+    font-family:Inter,system-ui,sans-serif;
+    font-size:.72rem;
+    font-weight:600;
+    text-transform:uppercase;
+    letter-spacing:.18em;
+    color:var(--accent);
+    margin-bottom:.5rem;
+  }
+  h3{
+    font-family:Fraunces,Georgia,serif;
+    font-weight:600;
+    font-size:1.35rem;
+    line-height:1.35;
+    margin:2.4rem 0 .8rem;
+    scroll-margin-top:1.5rem;
+  }
+  p{margin:0 0 1.3rem;text-wrap:pretty}
+  .dropcap::first-letter{
+    font-family:Fraunces,Georgia,serif;
+    font-weight:700;
+    font-size:3.6em;
+    line-height:.85;
+    float:left;
+    padding:.06em .12em 0 0;
+    color:var(--accent);
+  }
+  a{color:var(--accent-bright);text-decoration-thickness:1px;text-underline-offset:3px}
+  a:hover{color:var(--accent)}
+  strong{font-weight:600}
+  ul,ol{margin:0 0 1.3rem;padding-left:1.4rem}
+  li{margin-bottom:.45rem}
+  li::marker{color:var(--accent)}
+
+  /* diagram */
+  .diagram{
+    font-family:"JetBrains Mono",ui-monospace,Menlo,monospace;
+    font-size:.8rem;
+    line-height:1.7;
+    background:var(--ink);
+    color:#EDE6D8;
+    border-radius:var(--radius);
+    padding:1.4rem 1.6rem;
+    overflow-x:auto;
+    margin:1.8rem 0;
+    white-space:pre;
+  }
+  .diagram .hl{color:#F0B46A}
+
+  /* code */
+  code{
+    font-family:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+    font-size:.82em;
+    background:var(--code-bg);
+    border:1px solid var(--line);
+    border-radius:6px;
+    padding:.12em .42em;
+    white-space:nowrap;
+  }
+  .codeblock{
+    margin:1.8rem 0;
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    overflow:hidden;
+    background:#FFFDF9;
+  }
+  .codeblock-header{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:1rem;
+    padding:.55rem 1rem;
+    background:var(--paper-deep);
+    border-bottom:1px solid var(--line);
+    font-family:Inter,system-ui,sans-serif;
+    font-size:.74rem;
+    color:var(--muted);
+  }
+  .codeblock-header .lang{
+    font-weight:600;
+    text-transform:uppercase;
+    letter-spacing:.1em;
+    font-size:.66rem;
+  }
+  .copy-btn{
+    font-family:Inter,system-ui,sans-serif;
+    font-size:.72rem;
+    font-weight:500;
+    color:var(--muted);
+    background:transparent;
+    border:1px solid var(--line);
+    border-radius:8px;
+    padding:.28rem .7rem;
+    cursor:pointer;
+    transition:all .15s;
+  }
+  .copy-btn:hover{color:var(--ink);border-color:var(--faint)}
+  .copy-btn.copied{color:var(--accent);border-color:var(--accent)}
+  .codeblock pre{
+    margin:0;
+    padding:1.2rem 1.4rem;
+    overflow-x:auto;
+    font-family:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+    font-size:.83rem;
+    line-height:1.7;
+  }
+  .codeblock pre code{
+    background:none;border:none;padding:0;white-space:pre;font-size:1em;
+  }
+  /* tiny syntax tint */
+  .tok-k{color:#9A3412;font-weight:500}
+  .tok-s{color:#3F6212}
+  .tok-c{color:#A8A29E;font-style:italic}
+  .tok-f{color:#1D4ED8}
+
+  /* tables */
+  .table-wrap{overflow-x:auto;margin:1.8rem 0;border:1px solid var(--line);border-radius:var(--radius)}
+  table{
+    width:100%;
+    border-collapse:collapse;
+    font-family:Inter,system-ui,sans-serif;
+    font-size:.86rem;
+    line-height:1.55;
+    background:#FFFDF9;
+  }
+  th{
+    text-align:left;
+    font-size:.7rem;
+    text-transform:uppercase;
+    letter-spacing:.1em;
+    color:var(--muted);
+    font-weight:600;
+    padding:.9rem 1.1rem;
+    background:var(--paper-deep);
+    border-bottom:1px solid var(--line);
+    white-space:nowrap;
+  }
+  td{padding:.85rem 1.1rem;border-bottom:1px solid var(--line);vertical-align:top}
+  tr:last-child td{border-bottom:none}
+  td code{white-space:normal}
+
+  /* callout */
+  .callout{
+    background:var(--callout-bg);
+    border:1px solid #EBD9BE;
+    border-left:4px solid var(--accent-bright);
+    border-radius:0 var(--radius) var(--radius) 0;
+    padding:1.2rem 1.5rem;
+    margin:1.8rem 0;
+    font-size:1.02rem;
+  }
+  .callout p{margin:0}
+  .callout strong{color:var(--accent)}
+
+  /* dialogue */
+  .dialogue{margin:1.8rem 0;display:flex;flex-direction:column;gap:.9rem}
+  .turn{
+    border-radius:var(--radius);
+    padding:1rem 1.3rem;
+    font-size:1.02rem;
+    line-height:1.7;
+  }
+  .turn p{margin:0}
+  .turn .who{
+    display:block;
+    font-family:Inter,system-ui,sans-serif;
+    font-size:.68rem;
+    font-weight:600;
+    text-transform:uppercase;
+    letter-spacing:.14em;
+    margin-bottom:.4rem;
+  }
+  .turn.you{background:#FFFDF9;border:1px solid var(--line)}
+  .turn.you .who{color:var(--muted)}
+  .turn.ai{background:var(--accent-soft);border:1px solid #F0DCC4}
+  .turn.ai .who{color:var(--accent)}
+
+  /* repo tree */
+  .tree{
+    font-family:"JetBrains Mono",ui-monospace,Menlo,monospace;
+    font-size:.83rem;
+    line-height:1.75;
+    background:#FFFDF9;
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    padding:1.3rem 1.5rem;
+    margin:1.8rem 0;
+    overflow-x:auto;
+    white-space:pre;
+  }
+  .tree .cm{color:var(--faint)}
+
+  hr.ornament{
+    border:none;
+    text-align:center;
+    margin:3.5rem 0;
+    color:var(--faint);
+    font-size:1.1rem;
+    letter-spacing:.6em;
+  }
+  hr.ornament::after{content:"⁂"}
+
+  .checklist{
+    list-style:none;
+    padding:0;
+    margin:1.8rem 0;
+    counter-reset:step;
+  }
+  .checklist li{
+    position:relative;
+    padding:1rem 1.2rem 1rem 3.6rem;
+    background:#FFFDF9;
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    margin-bottom:.8rem;
+    counter-increment:step;
+  }
+  .checklist li::before{
+    content:counter(step);
+    position:absolute;
+    left:1.2rem;top:1rem;
+    width:1.7rem;height:1.7rem;
+    border-radius:50%;
+    background:var(--accent);
+    color:#fff;
+    font-family:Inter,system-ui,sans-serif;
+    font-size:.8rem;font-weight:600;
+    display:flex;align-items:center;justify-content:center;
+  }
+  .checklist li::marker{content:""}
+  .checklist code{white-space:normal}
+
+  footer.colophon{
+    margin-top:4rem;
+    padding-top:2rem;
+    border-top:1px solid var(--line);
+    font-family:Inter,system-ui,sans-serif;
+    font-size:.82rem;
+    color:var(--muted);
+    line-height:1.7;
+  }
+  footer.colophon em{
+    font-family:"Source Serif 4",Georgia,serif;
+    font-size:1rem;
+    color:var(--ink);
+    display:block;
+    margin-bottom:1rem;
+  }
+
+  @media (max-width:60rem){
+    .page{grid-template-columns:1fr;gap:0;padding-top:3rem}
+    .toc{
+      position:static;
+      max-height:none;
+      background:#FFFDF9;
+      border:1px solid var(--line);
+      border-radius:var(--radius);
+      padding:1.2rem 1.4rem;
+      margin-bottom:2.5rem;
+    }
+    .toc ol ol{display:none}
+  }
+  @media print{
+    .toc,.copy-btn{display:none}
+    .page{display:block;padding:0}
+    body{font-size:11pt;background:#fff}
+    section{break-inside:avoid}
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <aside class="toc" aria-label="Table of contents">
+    <div class="toc-label">On this page</div>
+    <ol>
+      <li><a href="#the-frame">The frame</a></li>
+      <li><a href="#part-1">The architecture</a>
+        <ol><li><a href="#why-it-beats">Why it beats WordPress</a></li></ol>
+      </li>
+      <li><a href="#part-2">Migrating from WordPress</a>
+        <ol>
+          <li><a href="#step-1">1 · Audit the site</a></li>
+          <li><a href="#theme-decision">Theme: convert or redesign?</a></li>
+          <li><a href="#step-2">2 · Export to Markdown</a></li>
+          <li><a href="#step-3">3 · Scaffold Next.js</a></li>
+          <li><a href="#step-4">4 · Replace the plugins</a></li>
+          <li><a href="#step-5">5 · Redirects &amp; SEO</a></li>
+          <li><a href="#step-6">6 · Deploy on Vercel</a></li>
+          <li><a href="#step-7">7 · Dev / staging / production</a></li>
+          <li><a href="#step-8">8 · Cutover day</a></li>
+        </ol>
+      </li>
+      <li><a href="#part-3">The AI assistant as your CMS</a>
+        <ol><li><a href="#prompt-library">Prompt library</a></li></ol>
+      </li>
+      <li><a href="#part-4">Honest tradeoffs</a></li>
+      <li><a href="#part-5">Pitching it to clients</a></li>
+      <li><a href="#start">Start this weekend</a></li>
+    </ol>
+  </aside>
+
+  <main class="article">
+    <header>
+      <p class="kicker">Web 4.0 · Contrivance Engineering</p>
+      <h1>Goodbye WordPress: build and run websites on Next.js + GitHub + Vercel, with an AI assistant as your CMS</h1>
+      <p class="lede">WordPress powers a huge share of the web, but for many sites it has become the heaviest possible way to do the simplest possible job: publish pages. There is a simpler architecture now — and it is fully in reach of any working web developer.</p>
+      <div class="byline">
+        <span><strong>Andrew Good</strong></span><span class="dot">·</span>
+        <span>October 3, 2026</span><span class="dot">·</span>
+        <span>12 min read</span>
+      </div>
+    </header>
+
+    <section id="the-frame">
+      <h2><span class="part-num">The frame</span>Web 4.0 Contrivance Engineering</h2>
+      <p class="dropcap">This guide is a migration playbook, but the idea underneath it is bigger — a rethinking of what content management actually needs to be in the age of AI. Call it <strong>Web 4.0 Contrivance Engineering</strong>.</p>
+      <p>The web's eras, compressed: Web 1.0 gave us static pages. Web 2.0 gave us the dynamic, database-driven site — and WordPress rode that wave to power a huge share of the internet. Web 3.0 chased decentralization. Web 4.0 is the intelligent web: AI agents as the interface layer, with version control as the memory and the edge as the infrastructure.</p>
+      <p><strong>Contrivance engineering</strong> is the discipline of replacing an entire software category with a smaller, cleverer mechanism — a contrivance. The CMS is the first casualty, because a CMS was only ever two jobs:</p>
+      <ol>
+        <li><strong>Store content with structure.</strong> Git does this better than MySQL ever did: every version, every author, every change, diffable forever.</li>
+        <li><strong>Give non-technical people a way to change it.</strong> The dashboard was the answer in 2005. The better answer now is language itself — you describe the change, the assistant makes it, you review the result.</li>
+      </ol>
+      <p>Content management was never really about the dashboard. It was always about the loop: <em>intent → change → review → publish.</em> WordPress built a cathedral around that loop — PHP, MySQL, plugin markets, security patches. The contrivance rebuilds it from four cheap parts: a chat, a branch, a preview URL, and a merge.</p>
+      <p>Everything that follows is that contrivance, engineered.</p>
+    </section>
+
+    <hr class="ornament">
+
+    <section id="part-1">
+      <h2><span class="part-num">Part 1</span>The architecture</h2>
+      <p>PHP hosting, plugin updates, security patches, database backups, a wp-admin panel that loads slower every year — all to serve what is, in the end, mostly static content. The replacement stack has four pieces, each doing exactly one job:</p>
+      <ul>
+        <li><strong>Next.js</strong> renders the site — static where possible, dynamic where needed.</li>
+        <li><strong>GitHub</strong> is the database — content lives in Markdown files, versioned like code.</li>
+        <li><strong>Vercel</strong> hosts it, with a preview deployment for every change.</li>
+        <li><strong>An AI assistant</strong> (like Muse) is the CMS — it writes, edits, organizes, and publishes content through plain conversation.</li>
+      </ul>
+      <p>No wp-admin. No plugin updates. No 3&nbsp;a.m. “your site was defaced” emails.</p>
+
+      <h3>How the pieces fit</h3>
+      <div class="diagram">You  <span class="hl">→</span>  (chat)  <span class="hl">→</span>  AI assistant  <span class="hl">→</span>  edits Markdown/MDX in GitHub repo
+                                              <span class="hl">↓</span>
+                                    Vercel builds a preview URL
+                                              <span class="hl">↓</span>
+                              You review <span class="hl">→</span> merge <span class="hl">→</span> production deploys</div>
+
+      <p><strong>Content</strong> lives in the repo as Markdown — or MDX, Markdown with React components — with frontmatter:</p>
+      <div class="codeblock">
+        <div class="codeblock-header"><span class="lang">Markdown</span><span>content/posts/why-we-moved.md</span><button class="copy-btn" type="button">Copy</button></div>
+<pre><code>---
+title: "Why we moved off WordPress"
+date: "2026-10-03"
+author: "Andrew"
+tags: ["nextjs", "wordpress", "cms"]
+description: "How we replaced wp-admin with an AI assistant."
+---
+
+Your article body here. **Markdown** works exactly as you'd expect,
+and MDX lets you drop in interactive components:
+
+&lt;Callout&gt;Like this one.&lt;/Callout&gt;</code></pre>
+      </div>
+
+      <p><strong>GitHub</strong> stores every version of every page. The full history of your site's content is a <code>git log</code> away — something WordPress revisions never did well.</p>
+      <p><strong>Vercel</strong> watches the repo. Push to <code>main</code> → production deploys in under a minute. Open a pull request → you get a unique preview URL to review the change on a live site before it ships.</p>
+      <p><strong>The AI assistant</strong> replaces wp-admin. Instead of logging into a dashboard, you say:</p>
+      <ul>
+        <li><em>“Write a blog post about our new pricing, friendly tone, 600 words.”</em></li>
+        <li><em>“Update the homepage hero to mention the October sale.”</em></li>
+        <li><em>“Add these three testimonials to the reviews page.”</em></li>
+        <li><em>“The About page photo is outdated — swap in the new team shot and optimize it.”</em></li>
+      </ul>
+      <p>The assistant edits the files, commits to a branch, and hands you a preview link. You approve, it merges, the site updates. That loop <em>is</em> content management now.</p>
+
+      <h3 id="why-it-beats">Why this beats WordPress for content sites</h3>
+      <div class="table-wrap">
+      <table>
+        <thead><tr><th></th><th>WordPress</th><th>Next.js + GitHub + Vercel + AI</th></tr></thead>
+        <tbody>
+          <tr><td>Hosting cost</td><td>$5–50/mo PHP hosting</td><td>$0 — Vercel's hobby tier is generous</td></tr>
+          <tr><td>Security surface</td><td>PHP + MySQL + 20 plugins, all patchable</td><td>Static files on a CDN; nothing to hack</td></tr>
+          <tr><td>Speed</td><td>Often 2–5s time-to-first-byte</td><td>&lt;1s, global edge CDN</td></tr>
+          <tr><td>Content history</td><td>Fragile revisions table</td><td>Full git history, branches, diffs</td></tr>
+          <tr><td>Editing UX</td><td>wp-admin dashboard</td><td>A conversation</td></tr>
+          <tr><td>Staging</td><td>Plugin or manual copy</td><td>Automatic preview URL per change</td></tr>
+        </tbody>
+      </table>
+      </div>
+    </section>
+
+    <hr class="ornament">
+
+    <section id="part-2">
+      <h2><span class="part-num">Part 2</span>Migrating an existing WordPress site</h2>
+
+      <h3 id="step-1">Step 1 — Audit what you actually have</h3>
+      <p>Before touching code, inventory the site. Most WordPress sites are 90% pages and posts, plus a handful of dynamic bits.</p>
+      <ol>
+        <li><strong>Content inventory</strong> — list every post type: posts, pages, custom post types, media. Tools → Export in wp-admin shows you the shape of it.</li>
+        <li><strong>Plugin audit</strong> — for each active plugin, write down what it <em>does</em>, not what it's called. “Contact Form 7” → “contact form”. “Yoast” → “meta tags + sitemap”. “WooCommerce” → stop here; a full store migration is a bigger project (see Part&nbsp;4).</li>
+        <li><strong>URL inventory</strong> — export your permalink structure. You'll need it for redirects in Step&nbsp;5.</li>
+        <li><strong>Traffic inventory</strong> — note your top 20 pages in analytics. Those get migrated first and tested hardest.</li>
+      </ol>
+
+      <h3 id="theme-decision">A design decision first: convert the theme, or redesign?</h3>
+      <p>Right after the audit you'll hit a fork: rebuild the current theme faithfully in Next.js, or use the migration as the moment to redesign. Both are valid — pick deliberately.</p>
+      <p><strong>Option A — faithful theme conversion.</strong> Recreate the existing look with Next.js components and Tailwind. Fastest path, zero brand disruption, and stakeholders see “the same site, but instant.” Map WordPress templates to routes as you go:</p>
+      <div class="table-wrap">
+      <table>
+        <thead><tr><th>WordPress template</th><th>Next.js equivalent</th></tr></thead>
+        <tbody>
+          <tr><td><code>header.php</code> / <code>footer.php</code></td><td><code>app/layout.tsx</code></td></tr>
+          <tr><td><code>front-page.php</code></td><td><code>app/page.tsx</code></td></tr>
+          <tr><td><code>single.php</code></td><td><code>app/blog/[slug]/page.tsx</code></td></tr>
+          <tr><td><code>archive.php</code></td><td><code>app/blog/page.tsx</code></td></tr>
+          <tr><td><code>page.php</code></td><td><code>app/[slug]/page.tsx</code> or per-page routes</td></tr>
+        </tbody>
+      </table>
+      </div>
+      <p>Hand the assistant the theme's CSS — or screenshots of each template — and have it generate the Tailwind equivalents. This is mechanical work it's fast at.</p>
+      <p><strong>Option B — redesign during the migration.</strong> The content is already being restructured and redirects mapped, so this is the cheapest redesign moment you'll ever get. Go content-first: fix the information-architecture problems the audit found, keep URL structure stable where you can, and let every design iteration ride the preview-URL workflow from Step&nbsp;7.</p>
+      <div class="callout">
+        <p><strong>The pragmatic rule:</strong> if the site has real traffic, convert faithfully first — isolate the platform risk — then redesign on the new stack, where every change gets its own preview link. If traffic is small, combine them and skip the double work.</p>
+      </div>
+
+      <h3 id="step-2">Step 2 — Export content and convert it to Markdown</h3>
+      <p>The cleanest path is the WordPress REST API or WP-CLI:</p>
+      <div class="codeblock">
+        <div class="codeblock-header"><span class="lang">Bash</span><span>export posts via WP-CLI</span><button class="copy-btn" type="button">Copy</button></div>
+<pre><code><span class="tok-c"># Export posts via WP-CLI (run on the server or a local copy)</span>
+wp export --dir=./wp-export --post_type=post,page</code></pre>
+      </div>
+      <p>The export is XML (WXR format). Convert each item to a Markdown file with frontmatter. This is exactly the kind of tedious transformation an AI assistant does well — hand it the export and say <em>“convert every post to Markdown with title, date, slug, and categories in frontmatter, HTML converted to Markdown, images referenced from /images/.”</em> It can write and run the conversion script for you.</p>
+      <p>For smaller sites, even simpler: the assistant can crawl the live site's REST API (<code>/wp-json/wp/v2/posts?per_page=100</code>) and generate the Markdown files directly.</p>
+      <p><strong>Media:</strong> download <code>/wp-content/uploads/</code> and move it into the new repo — or object storage for large libraries. Rename files to something sane along the way.</p>
+
+      <h3 id="step-3">Step 3 — Scaffold the Next.js app and content layer</h3>
+      <div class="codeblock">
+        <div class="codeblock-header"><span class="lang">Bash</span><span>scaffold</span><button class="copy-btn" type="button">Copy</button></div>
+<pre><code>npx create-next-app@latest my-site --typescript --tailwind --app
+<span class="tok-k">cd</span> my-site
+npm install gray-matter remark remark-html</code></pre>
+      </div>
+      <p>A minimal content layer — <code>lib/posts.ts</code>:</p>
+      <div class="codeblock">
+        <div class="codeblock-header"><span class="lang">TypeScript</span><span>lib/posts.ts</span><button class="copy-btn" type="button">Copy</button></div>
+<pre><code><span class="tok-k">import</span> fs <span class="tok-k">from</span> <span class="tok-s">"fs"</span>;
+<span class="tok-k">import</span> path <span class="tok-k">from</span> <span class="tok-s">"path"</span>;
+<span class="tok-k">import</span> matter <span class="tok-k">from</span> <span class="tok-s">"gray-matter"</span>;
+<span class="tok-k">import</span> { remark } <span class="tok-k">from</span> <span class="tok-s">"remark"</span>;
+<span class="tok-k">import</span> html <span class="tok-k">from</span> <span class="tok-s">"remark-html"</span>;
+
+<span class="tok-k">const</span> postsDir = path.<span class="tok-f">join</span>(process.<span class="tok-f">cwd</span>(), <span class="tok-s">"content/posts"</span>);
+
+<span class="tok-k">export function</span> <span class="tok-f">getAllPosts</span>() {
+  <span class="tok-k">return</span> fs.<span class="tok-f">readdirSync</span>(postsDir)
+    .<span class="tok-f">filter</span>(f =&gt; f.<span class="tok-f">endsWith</span>(<span class="tok-s">".md"</span>) || f.<span class="tok-f">endsWith</span>(<span class="tok-s">".mdx"</span>))
+    .<span class="tok-f">map</span>(file =&gt; {
+      <span class="tok-k">const</span> { data } = <span class="tok-f">matter</span>(fs.<span class="tok-f">readFileSync</span>(path.<span class="tok-f">join</span>(postsDir, file), <span class="tok-s">"utf8"</span>));
+      <span class="tok-k">return</span> { slug: file.<span class="tok-f">replace</span>(<span class="tok-s">/\.mdx?$/</span>, <span class="tok-s">""</span>), ...data };
+    })
+    .<span class="tok-f">sort</span>((a: <span class="tok-k">any</span>, b: <span class="tok-k">any</span>) =&gt; +<span class="tok-k">new</span> <span class="tok-f">Date</span>(b.date) - +<span class="tok-k">new</span> <span class="tok-f">Date</span>(a.date));
+}
+
+<span class="tok-k">export async function</span> <span class="tok-f">getPostHtml</span>(slug: string) {
+  <span class="tok-k">const</span> raw = fs.<span class="tok-f">readFileSync</span>(path.<span class="tok-f">join</span>(postsDir, <span class="tok-s">`${slug}.md`</span>), <span class="tok-s">"utf8"</span>);
+  <span class="tok-k">const</span> { content } = <span class="tok-f">matter</span>(raw);
+  <span class="tok-k">return</span> (<span class="tok-k">await</span> <span class="tok-f">remark</span>().<span class="tok-f">use</span>(html).<span class="tok-f">process</span>(content)).<span class="tok-f">toString</span>();
+}</code></pre>
+      </div>
+      <p>Then a dynamic route at <code>app/blog/[slug]/page.tsx</code> using <code>generateStaticParams()</code> to pre-render every post at build time. (For MDX with components, swap in <code>next-mdx-remote</code> — same idea, more power.)</p>
+      <p>Your repo layout ends up looking like this:</p>
+      <div class="tree">my-site/
+├── app/                  <span class="cm"># routes: /, /blog, /blog/[slug], /about …</span>
+├── content/
+│   ├── posts/            <span class="cm"># one Markdown file per post</span>
+│   └── pages/            <span class="cm"># homepage, about, pricing …</span>
+├── public/images/        <span class="cm"># migrated media</span>
+└── lib/posts.ts          <span class="cm"># content helpers</span></div>
+
+      <h3 id="step-4">Step 4 — Rebuild the dynamic bits without plugins</h3>
+      <p>Every WordPress plugin maps to something simpler:</p>
+      <ul>
+        <li><strong>Contact forms</strong> → a React form + Next.js Server Action, sending via Resend or Formspree. No plugin, no spam-filter plugin, no database table.</li>
+        <li><strong>SEO meta + sitemaps</strong> → Next.js Metadata API plus an auto-generated <code>sitemap.ts</code> and <code>robots.ts</code>. The assistant writes these once; they stay correct forever.</li>
+        <li><strong>Search</strong> → build-time index with Pagefind — fast, offline-capable, zero backend.</li>
+        <li><strong>Comments</strong> → Giscus (GitHub Discussions as the backend — fitting, since your content already lives on GitHub) or Disqus if you prefer managed.</li>
+        <li><strong>Newsletters</strong> → Buttondown, ConvertKit, or a Substack embed.</li>
+        <li><strong>Analytics</strong> → Vercel Analytics or Plausible. No cookie-banner plugin circus.</li>
+      </ul>
+
+      <h3 id="step-5">Step 5 — Redirects: don't torch your SEO</h3>
+      <div class="callout">
+        <p><strong>First principle: the best redirect is the one you never need.</strong> Retain the original URLs wherever possible — carry WordPress slugs over verbatim as your Next.js slugs. Every redirect leaks a little link equity and adds a failure point, so only redirect URLs you're deliberately changing (like collapsing date-based permalinks into clean slugs). Resist the urge to “improve” slugs during the migration; do that later, one URL at a time, once the new stack is proven.</p>
+      </div>
+      <p>For the URLs that do change, make the old ones keep working. WordPress permalinks like <code>/2024/05/my-post/</code> need to resolve. In <code>next.config.ts</code>:</p>
+      <div class="codeblock">
+        <div class="codeblock-header"><span class="lang">TypeScript</span><span>next.config.ts</span><button class="copy-btn" type="button">Copy</button></div>
+<pre><code><span class="tok-k">const</span> nextConfig = {
+  <span class="tok-k">async</span> <span class="tok-f">redirects</span>() {
+    <span class="tok-k">return</span> [
+      <span class="tok-c">// date-based permalinks → clean slugs</span>
+      { source: <span class="tok-s">"/:year(\\d{4})/:month(\\d{2})/:slug"</span>, destination: <span class="tok-s">"/blog/:slug"</span>, permanent: <span class="tok-k">true</span> },
+      <span class="tok-c">// renamed pages</span>
+      { source: <span class="tok-s">"/about-us"</span>, destination: <span class="tok-s">"/about"</span>, permanent: <span class="tok-k">true</span> },
+    ];
+  },
+};</code></pre>
+      </div>
+      <p>Generate the full redirect map from your URL inventory (Step&nbsp;1) — another job to hand the assistant: <em>“here's the CSV of old URLs and new slugs, generate the redirects array.”</em></p>
+
+      <h3 id="step-6">Step 6 — Deploy on Vercel</h3>
+      <ol>
+        <li>Push the repo to GitHub.</li>
+        <li>Import it in Vercel — it auto-detects Next.js. Zero config for most sites.</li>
+        <li>Point your domain's DNS at Vercel; it provisions HTTPS automatically.</li>
+        <li>Set a freeze on the WordPress site, do a final content export, merge, switch DNS.</li>
+      </ol>
+      <p>Keep the old WordPress export archived in the repo (<code>/archive/wordpress-export.xml</code>) — it's your ultimate backup, and it costs nothing to keep.</p>
+
+      <h3 id="step-7">Step 7 — Set up development, staging, and production branches</h3>
+      <p>WordPress gave you one live site and crossed fingers. Git gives you three environments for free:</p>
+      <div class="table-wrap">
+      <table>
+        <thead><tr><th>Branch</th><th>Environment</th><th>Deploys to</th></tr></thead>
+        <tbody>
+          <tr><td><code>main</code></td><td><strong>Production</strong></td><td>Your domain, via Vercel production deployment</td></tr>
+          <tr><td><code>staging</code></td><td><strong>Staging</strong></td><td>A staging URL (e.g. <code>staging.yoursite.com</code>) mirroring production</td></tr>
+          <tr><td>Feature branches (<code>post/…</code>, <code>fix/…</code>)</td><td><strong>Development</strong></td><td>Automatic Vercel preview URLs — one per pull request</td></tr>
+        </tbody>
+      </table>
+      </div>
+      <p><strong>How it works on Vercel:</strong> set <code>main</code> as the production branch. Every push to <code>staging</code> gets its own stable deployment — point a <code>staging</code> subdomain at it and password-protect it under Vercel's Deployment Protection settings. Every pull request, from any branch, gets a throwaway preview URL for review.</p>
+      <p><strong>The workflow, with the AI assistant in the loop:</strong></p>
+      <ol>
+        <li>You ask for a change; the assistant works on a short-lived branch (<code>post/weekend-hours</code>).</li>
+        <li>It opens a pull request <strong>against <code>staging</code></strong>, not <code>main</code>. Vercel builds a preview; you review the change on the staging site, in context with everything else in flight.</li>
+        <li>When staging looks right, merge <code>staging</code> → <code>main</code>. Vercel promotes it to production. Done.</li>
+      </ol>
+      <div class="callout">
+        <p><strong>Protect the important branches</strong> — GitHub → Settings → Branches → Add branch protection rule, for both <code>main</code> and <code>staging</code>: require a pull request before merging (no direct pushes, not even by you), require at least one approval, and require status checks to pass so the Vercel build must be green before merge. This is the guardrail that makes “AI as CMS” safe: the assistant can draft anything, but only you move it up the ladder — development → staging → production.</p>
+      </div>
+
+      <h3 id="pitfalls">Don't skip: the pitfalls list</h3>
+      <ul>
+        <li><strong>Shortcodes.</strong> <code>[gallery]</code>, <code>[contact-form]</code>, and friends don't survive HTML→Markdown conversion as anything useful. Inventory them in Step&nbsp;1 and rebuild each as an MDX component or a plain section.</li>
+        <li><strong>Email — the big one.</strong> When you point DNS at Vercel, copy <em>every</em> DNS record first, especially <strong>MX records</strong>. Teams have migrated a site in an afternoon and killed company email for a week. Export the zone file before you touch anything.</li>
+        <li><strong>RSS.</strong> If anyone subscribes at <code>/feed/</code>, keep it working — generate an RSS route in Next.js or redirect the old feed URL to it.</li>
+        <li><strong>Drafts and scheduled posts.</strong> Exports grab published content. Decide what happens to drafts and scheduled items <em>before</em> cutover, or they'll silently vanish.</li>
+        <li><strong>OG images, Twitter cards, favicon.</strong> Regenerate and test with a link-preview checker; they're the first thing people notice when they're wrong.</li>
+        <li><strong>Test the forms.</strong> Submit every form on staging and confirm the notification actually arrives. This is the #1 “we launched and nobody told us” failure.</li>
+      </ul>
+
+      <h3 id="step-8">Step 8 — Cutover day checklist</h3>
+      <ol>
+        <li><strong>Content freeze</strong> on WordPress — no new posts or edits after an agreed time.</li>
+        <li><strong>Final export</strong> → convert → merge to <code>staging</code>. Review <em>everything</em> on the staging URL, especially the top-20 traffic pages.</li>
+        <li><strong>Merge <code>staging</code> → <code>main</code></strong>, then switch DNS (Vercel's A/CNAME records — with MX/TXT records preserved per the pitfalls list).</li>
+        <li><strong>Search Console:</strong> submit the new sitemap, request indexing on key pages.</li>
+        <li><strong>Watch 404s for two weeks</strong> (Vercel logs or a tiny script) and add redirects for anything missed.</li>
+        <li><strong>Keep the old WordPress site read-only for 30 days</strong> — a live reference and an instant rollback. Rollback is just DNS pointed back at the old host.</li>
+      </ol>
+    </section>
+
+    <hr class="ornament">
+
+    <section id="part-3">
+      <h2><span class="part-num">Part 3</span>The AI assistant as your CMS</h2>
+      <p class="dropcap">This is the part that changes the job, not just the stack. Once the site is Git-backed, “content management” becomes a conversation. Here's what the daily workflow looks like:</p>
+
+      <h3>Publishing a post</h3>
+      <div class="dialogue">
+        <div class="turn you">
+          <span class="who">You</span>
+          <p>“Write a post announcing our new weekend hours — Saturdays 9 to 5 starting October 11. Friendly tone, mention the coffee's on us that day.”</p>
+        </div>
+        <div class="turn ai">
+          <span class="who">Assistant</span>
+          <p>Drafts <code>content/posts/weekend-hours.md</code> with frontmatter (title, date, description for SEO), commits to a branch — Vercel builds a preview.</p>
+        </div>
+        <div class="turn you">
+          <span class="who">You</span>
+          <p>Open the preview URL on your phone: “make the headline punchier.”</p>
+        </div>
+        <div class="turn ai">
+          <span class="who">Assistant</span>
+          <p>Revises — the preview rebuilds in about thirty seconds.</p>
+        </div>
+        <div class="turn you">
+          <span class="who">You</span>
+          <p>“Ship it.” → merged to <code>staging</code>, reviewed once more, promoted to <code>main</code> → production.</p>
+        </div>
+      </div>
+      <p>No login, no editor quirks, no “where did the publish button go after the update.”</p>
+
+      <h3>Things the assistant does that wp-admin never could</h3>
+      <ul>
+        <li><strong>Bulk operations in one sentence:</strong> <em>“Add a ‘last updated’ note to every post from 2023”</em> or <em>“retitle all posts to title case.”</em></li>
+        <li><strong>SEO hygiene on autopilot:</strong> <em>“Check every page for missing meta descriptions and draft them.”</em></li>
+        <li><strong>Broken-link patrol:</strong> <em>“Crawl the site and fix or flag every broken link.”</em></li>
+        <li><strong>Image work:</strong> resize, convert to WebP/AVIF, write real alt text, swap assets — <em>“optimize every image over 500KB.”</em></li>
+        <li><strong>Redirects and sitemaps:</strong> regenerated from the actual content, never stale.</li>
+        <li><strong>Translations:</strong> <em>“Translate the pricing page to French”</em> — a new locale route in minutes.</li>
+        <li><strong>Institutional memory:</strong> it reads the whole repo, so <em>“make the new landing page match the tone of our March campaign”</em> actually works.</li>
+      </ul>
+
+      <h3>Guardrails — because “AI, just publish” needs brakes</h3>
+      <ol>
+        <li><strong>Branch + preview for everything.</strong> The assistant works on short-lived branches; nothing reaches <code>staging</code> without a preview URL you've seen, and nothing reaches <code>main</code> without passing through <code>staging</code> (see Step&nbsp;7).</li>
+        <li><strong>Pull-request review.</strong> Treat content like code: the PR diff <em>is</em> the editorial review. Branch protection rules can require your approval before merge.</li>
+        <li><strong>Keep humans on facts and voice.</strong> The assistant drafts fast, but prices, dates, claims, and tone get your eyes before they go live.</li>
+        <li><strong>Everything is reversible.</strong> A bad publish is <code>git revert</code> away — try doing that with a WordPress auto-update gone wrong.</li>
+      </ol>
+
+      <h3 id="prompt-library">The AI CMS prompt library — steal these</h3>
+      <p>The workflow only works if you know what to ask for. Copy-paste starters, grouped by job:</p>
+      <p><strong>Publishing</strong></p>
+      <ul>
+        <li><em>“Draft an 800-word post on [topic] for [audience]. Frontmatter: title, today's date, a sub-160-character meta description, and three tags from our existing tag list. Open a PR against staging.”</em></li>
+        <li><em>“Turn these meeting notes into a changelog entry — keep it under 150 words: [paste].”</em></li>
+      </ul>
+      <p><strong>SEO &amp; hygiene</strong></p>
+      <ul>
+        <li><em>“Audit every file under /content for missing or over-160-character meta descriptions. Draft replacements in our voice and open one PR.”</em></li>
+        <li><em>“Find duplicate titles across posts and propose rewrites that differentiate them.”</em></li>
+      </ul>
+      <p><strong>Maintenance</strong></p>
+      <ul>
+        <li><em>“Find every image over 400KB, convert to WebP, update the references, and report total bytes saved.”</em></li>
+        <li><em>“Check all external links across the site. For each dead one, suggest a replacement or flag it for me.”</em></li>
+        <li><em>“Regenerate the sitemap from current content and confirm every URL returns 200 on the staging deployment.”</em></li>
+      </ul>
+      <p><strong>Repurposing</strong></p>
+      <ul>
+        <li><em>“Turn this post into a 5-part thread outline and a 100-word newsletter blurb: [slug].”</em></li>
+        <li><em>“Summarize our three most-visited posts into a new ‘Start here’ page.”</em></li>
+      </ul>
+    </section>
+
+    <hr class="ornament">
+
+    <section id="part-4">
+      <h2><span class="part-num">Part 4</span>Honest tradeoffs: when WordPress still wins</h2>
+      <p>This stack isn't for everyone. Be straight with clients — or yourself — about the limits:</p>
+      <ul>
+        <li><strong>Non-technical teams</strong> who live in a visual page builder (Elementor, Divi) will miss drag-and-drop. The AI-chat workflow replaces the <em>blogging</em> use case well, but not the <em>design canvas</em> use case.</li>
+        <li><strong>Complex membership / LMS / marketplace functionality</strong> (MemberPress, LearnDash, Dokan) has no one-line Next.js equivalent. That's application development, not a migration.</li>
+        <li><strong>WooCommerce stores</strong> can move to Shopify/Stripe + Next.js storefronts, but it's a replatforming project with real cost — don't pitch it as a weekend migration.</li>
+        <li><strong>Someone has to own the repo.</strong> The AI assistant does the work, but a human still reviews PRs. If the client won't click “merge,” nothing ships.</li>
+      </ul>
+      <p>For brochure sites, blogs, portfolios, docs, and marketing sites — which is most of WordPress's footprint — the tradeoff is overwhelmingly in favor of the new stack.</p>
+    </section>
+
+    <hr class="ornament">
+
+    <section id="part-5">
+      <h2><span class="part-num">Part 5</span>Pitching it: selling AI-as-CMS to WordPress clients</h2>
+      <p class="dropcap">Parts 1–4 are the <em>how</em>. This is the <em>why</em> — written for the two WordPress conversations you'll actually have: a new client choosing a stack, and an existing WordPress owner deciding whether to migrate.</p>
+
+      <h3>New clients: WordPress quote vs. the contrivance</h3>
+      <p>Don't pitch technology; pitch the absence of chores. They're comparing your quote against a WordPress build — hosting fees, maintenance retainer, plugin updates, and “your site got hacked” risk. Your pitch:</p>
+      <ul>
+        <li><strong>“You'll never log into a dashboard.”</strong> Content changes happen by messaging — you, or the AI assistant directly. They describe what they want, get a preview link, approve, it's live. No training session on wp-admin required.</li>
+        <li><strong>No maintenance retainer for busywork.</strong> There's no PHP to patch and no plugins to update. If you sell a care plan, it's for <em>content operations and improvements</em> — work they can see — not invisible janitorial work.</li>
+        <li><strong>They own everything.</strong> The site lives in <em>their</em> GitHub repo as plain Markdown and React. If you get hit by a bus, any developer on earth can take over — no tribal WordPress knowledge required.</li>
+      </ul>
+      <p>Price the build normally; the differentiator is that the ongoing story is simpler and cheaper than the WordPress quote sitting next to yours.</p>
+
+      <h3>Existing WordPress owners: the migration pitch</h3>
+      <p>These clients don't need the concept sold — they've lived the pain: update anxiety, security scares, 45-second wp-admin loads, the plugin renewal emails. Your pitch is relief with no sacrifice:</p>
+      <ul>
+        <li><strong>You keep everything that matters.</strong> Every post, page, image, and URL — plus the design, rebuilt faithfully. Nothing your visitors love changes.</li>
+        <li><strong>You lose everything that hurts.</strong> No more core and plugin updates, no security patching, no backup plugins, no renewal stack. The attack surface goes from “all of PHP” to “static files.”</li>
+        <li><strong>The migration itself is low-risk.</strong> They review the entire new site on a staging URL before anything goes live, DNS rollback takes minutes, and the old site stays read-only for 30 days as a safety net.</li>
+      </ul>
+      <p>Point them at Parts 1–4 of this article. Developers respect a migration plan they can read.</p>
+
+      <h3>Handling the two objections you'll hear</h3>
+      <p><strong>“What if the AI gets it wrong?”</strong> Nothing publishes without approval. The assistant drafts on branches, the client reviews a preview link, merges go through staging. It's <em>more</em> controlled than the WordPress workflow, where anyone with an editor login can hit Publish.</p>
+      <div class="callout">
+        <p><strong>“What if you disappear?”</strong> Everything is in their GitHub account — code, content, full history. The content is Markdown, the hosting is Vercel, the “CMS” is a documented conversation workflow. No license keys, no proprietary lock-in, no single point of failure with your name on it. That's a trust-builder most freelancers can't offer.</p>
+      </div>
+
+      <h3>The cost story, in one table</h3>
+      <div class="table-wrap">
+      <table>
+        <thead><tr><th></th><th>Typical WordPress, per year</th><th>The contrivance</th></tr></thead>
+        <tbody>
+          <tr><td>Hosting</td><td>$60–600</td><td>$0 (Vercel hobby; ~$240/yr Pro when you outgrow it)</td></tr>
+          <tr><td>Premium plugins/themes</td><td>$100–400 in renewals</td><td>$0</td></tr>
+          <tr><td>Maintenance retainer</td><td>$1,200–6,000</td><td>$0 of busywork</td></tr>
+          <tr><td>Security incidents</td><td>Unbounded</td><td>Near-zero attack surface</td></tr>
+        </tbody>
+      </table>
+      </div>
+      <p>The build costs what a build costs. It's the <em>second</em> year that sells it.</p>
+    </section>
+
+    <hr class="ornament">
+
+    <section id="start">
+      <h2><span class="part-num">Coda</span>Getting started this weekend</h2>
+      <ol class="checklist">
+        <li><code>npx create-next-app@latest</code> — scaffold it.</li>
+        <li>Export one WordPress post, convert it to Markdown, render it at <code>/blog/[slug]</code>.</li>
+        <li>Push to GitHub, import into Vercel, open the live URL.</li>
+        <li>Then hand your AI assistant the WordPress export and say: <em>“migrate the rest.”</em></li>
+      </ol>
+      <p>The future CMS isn't a dashboard. It's a conversation — with git as the memory and the edge as the server.</p>
+    </section>
+
+    <footer class="colophon">
+      <em>Built the way it describes: written with an AI assistant, versioned on GitHub, deployed on Vercel.</em>
+      <p>To publish this page with GitHub Pages: place this file as <code>index.html</code> at the root of a repository (or in <code>/docs</code>), then enable Pages under the repo's Settings → Pages. No build step required — it's a single self-contained file.</p>
+    </footer>
+  </main>
+</div>
+
+<script>
+(function(){
+  // Copy buttons
+  document.querySelectorAll('.copy-btn').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      var code = btn.closest('.codeblock').querySelector('pre code').innerText;
+      navigator.clipboard.writeText(code).then(function(){
+        btn.textContent = 'Copied';
+        btn.classList.add('copied');
+        setTimeout(function(){ btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 1600);
+      });
+    });
+  });
+
+  // Active TOC highlighting
+  var links = Array.prototype.slice.call(document.querySelectorAll('.toc a'));
+  var byId = {};
+  links.forEach(function(a){
+    var id = a.getAttribute('href').slice(1);
+    (byId[id] = byId[id] || []).push(a);
+  });
+  var sections = Object.keys(byId).map(function(id){ return document.getElementById(id); })
+    .filter(Boolean);
+  if ('IntersectionObserver' in window && sections.length){
+    var obs = new IntersectionObserver(function(entries){
+      entries.forEach(function(e){
+        if (e.isIntersecting){
+          links.forEach(function(a){ a.classList.remove('active'); });
+          (byId[e.target.id] || []).forEach(function(a){ a.classList.add('active'); });
+        }
+      });
+    }, { rootMargin: '-20% 0px -70% 0px' });
+    sections.forEach(function(s){ obs.observe(s); });
+  }
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,7 @@
+Wix has no export button. That's not an oversight — it's the business model. Your website is a hostage: rented monthly, and you can't take it with you when you leave.
+
+New developer guide (article 4 in my Web 4.0 Contrivance Engineering series): the escape plan. How an AI assistant jailbreaks the content by crawling the live site and rebuilds it on Next.js + GitHub + Vercel — where you own everything and the rent drops to zero.
+
+Read it here: https://hirschbergaio.github.io/web40-contrivance-engineering/wix-to-nextjs-ai-cms/
+
+#webdev #nextjs #wix

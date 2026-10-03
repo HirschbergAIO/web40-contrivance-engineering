@@ -1,0 +1,9 @@
+WordPress had a good run. But if your site is mostly pages and posts, you're paying for a PHP monolith, plugin updates, and security patches to do a static site's job.
+
+I wrote up the full playbook for developers: how to move WordPress sites to Next.js on GitHub + Vercel — and replace wp-admin entirely with an AI assistant as your CMS. I call it Web 4.0 Contrivance Engineering: a rethink of what content management even needs to be in the age of AI.
+
+Migration steps, the AI content workflow, redirects/SEO handling, pitching it to clients, and the honest cases where WordPress still wins.
+
+Read it here: https://hirschbergaio.github.io/web40-contrivance-engineering/wordpress-to-nextjs-ai-cms/
+
+#webdev #nextjs #wordpress
